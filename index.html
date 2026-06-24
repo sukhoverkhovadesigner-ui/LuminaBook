@@ -1,0 +1,3202 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuminaRead — Читай со звездой</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #8E77B8;
+            --accent-dark: #6F5A98;
+            --accent-light: #C7B7DF;
+            --accent-pale: #EFE8F7;
+            --accent-glow: rgba(111, 90, 152, 0.24);
+            --gold: #f0d584;
+            --gold-dark: #d4b35a;
+            --gold-light: #BFA2E2;
+            --gold-pale: #F2ECFA;
+            --bg: #F4F0FA;
+            --surface: #FFFFFF;
+            --surface2: #EEE7F7;
+            --surface3: #DED2EF;
+            --text: #342B45;
+            --text2: #665A78;
+            --text3: #9588A8;
+            --radius: 20px;
+            --shadow: 0 4px 20px rgba(52, 43, 69, 0.08);
+            --shadow-lg: 0 8px 40px rgba(52, 43, 69, 0.14);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F4F0FA 48%, #ECE5F8 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body.dark-theme {
+            --accent: #A895D2;
+            --accent-dark: #CDBEF0;
+            --accent-light: #75639B;
+            --accent-pale: #4B3F63;
+            --accent-glow: rgba(155, 134, 200, 0.28);
+            --gold: #D8A24B;
+            --gold-dark: #FF9800;
+            --gold-light: #75639B;
+            --gold-pale: #4B3F63;
+            --bg: #302742;
+            --surface: #3A304D;
+            --surface2: #45385A;
+            --surface3: #5A4A74;
+            --text: #F8F2FF;
+            --text2: #E8DFFF;
+            --text3: #D0C4EA;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.38);
+            background: #302742;
+        }
+
+        .app {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 16px 90px;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .logo-icon {
+            width: auto;
+            height: auto;
+            background: transparent;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .streak-badge {
+            background: var(--accent-pale);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent-dark);
+        }
+
+        /* Nav Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+            background: var(--surface2);
+            border-radius: 14px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 10px 7px;
+            border: none;
+            background: transparent;
+            color: var(--text3);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            -webkit-appearance: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-height: 58px;
+        }
+
+        .nav-icon { font-size: 18px; line-height: 1; }
+        .nav-label { line-height: 1.1; }
+
+        .nav-tab.active {
+            background: var(--accent);
+            color: #FFFDF8;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .nav-tab:not(.active):hover {
+            color: var(--text2);
+            background: var(--surface3);
+        }
+
+        /* Pages */
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dinosaur Display */
+        .dino-container {
+            background: linear-gradient(180deg, var(--accent-pale) 0%, var(--surface2) 100%);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            text-align: center;
+            margin-bottom: 16px;
+            border: 2px solid var(--accent-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dino-container::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -20%;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .dino-stage {
+            font-size: 80px;
+            margin: 8px 0;
+            animation: dinoFloat 3s ease-in-out infinite;
+            display: block;
+        }
+
+        @keyframes dinoFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+
+        .dino-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent-dark);
+            margin-bottom: 4px;
+        }
+
+        .dino-days-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #FFFDF8;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        .dino-progress-text {
+            font-size: 12px;
+            color: var(--text3);
+            margin-bottom: 10px;
+        }
+
+        .dino-growth-bar {
+            height: 8px;
+            background: var(--surface3);
+            border-radius: 4px;
+            overflow: hidden;
+            max-width: 220px;
+            margin: 0 auto;
+        }
+
+        .dino-growth-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+
+        .section-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 18px;
+            border: 2px solid var(--surface3);
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+        .section-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; }
+        .section-sub { font-size: 12px; color: var(--text3); line-height: 1.4; margin: -6px 0 12px; }
+        .pet-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; position: relative; z-index: 1; }
+        .pet-stat { background: rgba(255,255,255,0.65); border: 1px solid var(--accent-light); border-radius: 14px; padding: 10px; text-align: left; }
+        .pet-stat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; font-size: 12px; font-weight: 800; }
+        .pet-stat-value { color: var(--accent-dark); }
+        .pet-stat-bar { height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; }
+        .pet-stat-fill { height: 100%; background: linear-gradient(90deg, var(--accent-light), var(--accent-dark)); border-radius: 4px; transition: width 0.6s ease; }
+        .pet-strip { display: flex; align-items: center; gap: 14px; background: linear-gradient(180deg, var(--accent-pale) 0%, var(--surface2) 100%); border: 1px solid var(--accent-light); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
+        .pet-strip-icon { width: 58px; height: 58px; border-radius: 18px; background: rgba(255,255,255,0.72); display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
+        .pet-strip-info { flex: 1; min-width: 0; }
+        .pet-strip-title { font-size: 16px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
+        .pet-strip-sub { font-size: 12px; color: var(--text3); font-weight: 700; margin-bottom: 9px; }
+        .pet-strip-bar { height: 8px; background: var(--surface3); border-radius: 99px; overflow: hidden; }
+        .pet-strip-fill { height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent-dark)); transition: width .3s ease; }
+        .tasks-grid { display: grid; gap: 8px; }
+        .task-card { display: flex; justify-content: space-between; gap: 10px; align-items: center; background: var(--surface2); border: 2px solid transparent; border-radius: 14px; padding: 11px 12px; transition: transform .18s ease, background .18s ease, border-color .18s ease; }
+        .task-card.ready { background: var(--accent-pale); border-color: var(--accent-light); cursor: pointer; }
+        .task-card.ready:hover { transform: translateY(-1px); border-color: var(--accent); }
+        .task-card.claimed { background: var(--surface2); color: var(--accent-dark); }
+        .task-name { font-size: 13px; font-weight: 800; }
+        .task-reward { flex-shrink: 0; font-size: 13px; font-weight: 900; color: #FF9800; white-space: nowrap; background: #FFFFFF; border-radius: 14px; padding: 8px 11px; min-width: 58px; text-align: center; box-shadow: 0 2px 8px rgba(111, 90, 152, 0.08); }
+        .task-state { font-size: 12px; font-weight: 800; color: var(--accent-dark); white-space: nowrap; }
+        .task-state.locked { color: var(--text3); }
+        .task-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        .spark-fly { position: fixed; z-index: 9999; pointer-events: none; font-size: 18px; font-weight: 900; color: #FF9800; animation: sparkFly .72s cubic-bezier(.22,.9,.26,1) forwards; }
+        @keyframes sparkFly { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--spark-x), var(--spark-y)) scale(.55); opacity: 0; } }
+        .book-card-icon { height: 58px; border-radius: 8px 13px 13px 8px; box-shadow: inset -5px 0 0 rgba(61, 74, 58, 0.08); }
+
+
+        .book-card-icon {
+            width: 50px;
+            height: 58px;
+            font-size: 26px;
+            border-radius: 12px;
+            box-shadow: none;
+        }
+        .book-card-icon::before { content: none; }
+        .book-card-author { font-size: 14px; font-weight: 900; color: var(--text); line-height: 1.2; margin-bottom: 2px; }
+        .book-card-title { font-size: 15px; font-weight: 800; color: var(--accent-dark); line-height: 1.25; margin-bottom: 5px; }
+        .book-card-desc { font-size: 12px; color: var(--text2); line-height: 1.35; margin-bottom: 7px; }
+        .book-card-meta { margin-bottom: 7px; }
+        .reader-encoding-select {
+            background: var(--surface2);
+            border: 1px solid var(--surface3);
+            color: var(--text2);
+            border-radius: 8px;
+            padding: 6px 7px;
+            font-size: 11px;
+            font-weight: 800;
+            max-width: 92px;
+            outline: none;
+        }
+        .chart-tabs { display: flex; gap: 6px; background: var(--surface2); border-radius: 12px; padding: 4px; margin-bottom: 14px; }
+        .chart-tab { flex: 1; border: none; border-radius: 9px; padding: 8px; background: transparent; color: var(--text3); font-size: 12px; font-weight: 800; cursor: pointer; }
+        .chart-tab.active { background: var(--accent); color: #FFFDF8; }
+        .month-chart { gap: 3px; overflow-x: auto; padding-bottom: 4px; }
+        .month-chart .chart-bar-wrapper { min-width: 12px; }
+        .month-chart .chart-bar { max-width: 10px; border-radius: 4px 4px 2px 2px; }
+        .month-chart .chart-bar-label { font-size: 8px; }
+        .library-controls { display: flex; gap: 8px; margin-bottom: 12px; }
+        .library-list { display: grid; gap: 10px; }
+        .library-item { background: var(--surface2); border-radius: 14px; padding: 12px; }
+        .library-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+        .library-title { font-size: 14px; font-weight: 900; }
+        .library-delete { border: none; background: transparent; color: var(--text3); font-size: 18px; cursor: pointer; }
+        .library-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .library-select {
+            flex: 1;
+            min-width: 0;
+            background: var(--surface);
+            border: 2px solid var(--surface3);
+            border-radius: 10px;
+            padding: 9px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+        }
+        .library-books { font-size: 12px; color: var(--text2); line-height: 1.4; margin-bottom: 8px; }
+        .library-note {
+            width: 100%;
+            min-height: 76px;
+            resize: vertical;
+            background: var(--surface);
+            border: 2px solid var(--surface3);
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 13px;
+            color: var(--text);
+            outline: none;
+        }
+        .library-note:focus { border-color: var(--accent); }
+
+        @media (max-width: 380px) { .pet-stats { grid-template-columns: 1fr; } }
+
+        /* Timer Card */
+        .timer-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            border: 2px solid var(--surface3);
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+
+        .timer-label-text {
+            font-size: 12px;
+            color: var(--text3);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+
+        .timer-display {
+            font-size: 56px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: var(--text);
+            line-height: 1;
+            margin: 8px 0;
+            transition: color 0.3s;
+        }
+
+        .timer-display.running { color: var(--accent-dark); }
+
+        .timer-session-info {
+            font-size: 13px;
+            color: var(--text3);
+            margin-bottom: 20px;
+            min-height: 20px;
+        }
+
+        .timer-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            border: none;
+            font-family: inherit;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            -webkit-appearance: none;
+        }
+
+        .btn:active { transform: scale(0.96); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: #FFFDF8;
+            padding: 14px 32px;
+            font-size: 15px;
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+
+        .btn-primary:hover { box-shadow: 0 8px 28px var(--accent-glow); transform: translateY(-1px); }
+
+        .btn-primary.running {
+            background: linear-gradient(135deg, #7D68A8, #5E4B86);
+            box-shadow: 0 6px 20px rgba(94, 75, 134, 0.28);
+        }
+
+        .btn-secondary {
+            background: var(--surface2);
+            color: var(--text2);
+            padding: 14px 18px;
+            font-size: 13px;
+            border: 2px solid var(--surface3);
+        }
+
+        .btn-secondary:hover { background: var(--surface3); }
+
+        /* Goal Card */
+        .goal-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 2px solid var(--surface3);
+            box-shadow: var(--shadow);
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .goal-title { font-size: 15px; font-weight: 700; }
+
+        .goal-edit {
+            background: var(--accent-pale);
+            border: none;
+            color: var(--accent-dark);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .goal-progress-bar {
+            height: 12px;
+            background: var(--surface2);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .goal-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-light), var(--accent-dark));
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .goal-progress-fill.complete { background: linear-gradient(90deg, var(--accent), var(--accent-dark)); }
+
+        .goal-stats { display: flex; justify-content: space-between; font-size: 13px; }
+        .goal-stats .current { color: var(--text); font-weight: 800; }
+        .goal-stats .target { color: var(--text3); }
+
+        /* Quick Add */
+        .quick-add {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 18px;
+            border: 2px solid var(--surface3);
+            box-shadow: var(--shadow);
+        }
+
+        .quick-add-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+
+        .quick-add-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .quick-btn {
+            background: var(--accent-pale);
+            border: 2px solid var(--accent-light);
+            color: var(--accent-dark);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-appearance: none;
+        }
+
+        .quick-btn:hover { background: var(--accent-light); transform: translateY(-2px); }
+        .quick-btn:active { transform: scale(0.95); }
+
+        .custom-add { display: flex; gap: 8px; margin-top: 10px; }
+
+        .custom-input {
+            flex: 1;
+            background: var(--surface2);
+            border: 2px solid var(--surface3);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .custom-input:focus { border-color: var(--accent); }
+
+        .custom-add-btn {
+            background: var(--accent);
+            border: none;
+            color: #FFFDF8;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 16px;
+            border: 2px solid var(--surface3);
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+        .stat-value { font-size: 24px; font-weight: 900; line-height: 1.1; }
+        .stat-label { font-size: 11px; color: var(--text3); font-weight: 600; margin-top: 4px; }
+
+        .stat-card.total .stat-value { color: var(--accent-dark); }
+        .stat-card.today .stat-value { color: var(--accent); }
+        .stat-card.streak .stat-value { color: #FF9800; }
+        .stat-card.sessions .stat-value { color: #FF9800; }
+
+        /* Weekly Chart */
+        .chart-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 2px solid var(--surface3);
+            box-shadow: var(--shadow);
+        }
+
+        .chart-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            height: 90px;
+        }
+
+        .chart-bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .chart-bar-value { font-size: 9px; color: var(--text3); font-weight: 700; margin-bottom: 3px; }
+
+        .chart-bar {
+            width: 100%;
+            max-width: 28px;
+            background: linear-gradient(180deg, var(--accent-light), var(--accent));
+            border-radius: 5px 5px 3px 3px;
+            transition: height 0.5s ease;
+            min-height: 3px;
+        }
+
+        .chart-bar.today-bar { background: linear-gradient(180deg, var(--accent), var(--accent-dark)); }
+
+        .chart-bar-label { font-size: 10px; color: var(--text3); font-weight: 700; margin-top: 6px; }
+
+        /* History */
+        .history-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 18px;
+            border: 2px solid var(--surface3);
+            box-shadow: var(--shadow);
+        }
+
+        .history-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--surface2);
+            border-radius: 10px;
+        }
+
+        .history-item-left { display: flex; align-items: center; gap: 8px; }
+
+        .history-item-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-pale);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .history-item-time { font-size: 12px; font-weight: 700; }
+        .history-item-date { font-size: 10px; color: var(--text3); }
+        .history-item-minutes { font-size: 13px; font-weight: 800; color: var(--accent-dark); }
+
+        /* Achievements - Redesigned */
+        .achievements-header { text-align: center; margin-bottom: 20px; }
+        .achievements-count { font-size: 13px; color: var(--text3); margin-top: 6px; }
+        .achievements-count span { color: var(--accent-dark); font-weight: 800; }
+
+        /* Section title centered */
+        .achievement-section-header {
+            text-align: center;
+            margin: 24px 0 14px;
+            position: relative;
+        }
+
+        .achievement-section-header::before,
+        .achievement-section-header::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            height: 1px;
+            background: var(--surface3);
+            width: calc(50% - 80px);
+        }
+
+        .achievement-section-header::before { left: 0; }
+        .achievement-section-header::after { right: 0; }
+
+        .achievement-section-title {
+            display: inline-block;
+            font-size: 13px;
+            color: var(--text2);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            background: var(--bg);
+            padding: 0 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .achievement-card {
+            background: var(--surface);
+            border-radius: 18px;
+            padding: 18px 14px;
+            border: 2px solid var(--surface3);
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 110px;
+        }
+
+        .achievement-card.unlocked {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, var(--surface) 0%, var(--accent-pale) 100%);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .achievement-card.unlocked .achievement-icon { filter: none; }
+
+        .achievement-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            filter: grayscale(100%) opacity(0.25);
+            transition: filter 0.3s, transform 0.3s;
+            display: block;
+            line-height: 1;
+        }
+
+        .achievement-card.unlocked .achievement-icon {
+            transform: scale(1.1);
+        }
+
+        .achievement-name {
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 3px;
+            color: var(--text2);
+            line-height: 1.3;
+        }
+
+        .achievement-desc {
+            font-size: 11px;
+            color: var(--text3);
+            line-height: 1.3;
+        }
+
+        .achievement-card.unlocked .achievement-name {
+            color: var(--accent-dark);
+        }
+
+        .achievement-card.unlocked .achievement-desc {
+            color: var(--text2);
+        }
+
+        .achievement-check {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            background: var(--accent);
+            color: #FFFFFF;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: var(--text);
+            font-weight: 800;
+        }
+
+        .achievement-card.unlocked .achievement-check { display: flex; }
+
+        /* Books Library */
+        .books-section { margin-top: 16px; }
+
+        .books-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .books-title { font-size: 15px; font-weight: 700; }
+
+        .upload-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .encoding-select {
+            background: var(--surface);
+            border: 2px solid var(--surface3);
+            color: var(--text);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+
+        .encoding-select:focus { border-color: var(--accent); }
+
+        .upload-btn {
+            background: var(--accent);
+            border: none;
+            color: #FFFDF8;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            -webkit-appearance: none;
+        }
+
+        .upload-btn:hover { background: var(--accent-dark); }
+
+        .format-info {
+            background: var(--accent-pale);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            color: var(--text2);
+            line-height: 1.5;
+            border: 1px solid var(--accent-light);
+        }
+
+        .format-info strong { color: var(--accent-dark); }
+
+        .format-info code {
+            background: var(--surface);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Books list */
+        .books-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: calc(100vh - 320px);
+            overflow-y: auto;
+            padding: 4px;
+            scroll-behavior: smooth;
+        }
+
+        .books-list::-webkit-scrollbar { width: 6px; }
+        .books-list::-webkit-scrollbar-track { background: var(--surface2); border-radius: 3px; }
+        .books-list::-webkit-scrollbar-thumb { background: var(--accent-light); border-radius: 3px; }
+        .books-list::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        .book-card {
+            background: var(--surface);
+            border: 2px solid var(--surface3);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .book-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px var(--accent-glow);
+        }
+
+        .book-card:active { transform: scale(0.98); }
+
+        .book-card-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-pale), var(--surface2));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .book-card-info { flex: 1; min-width: 0; }
+
+        .book-card-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+
+        .book-card-meta {
+            font-size: 12px;
+            color: var(--text3);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .book-card-progress-text {
+            font-size: 12px;
+            color: var(--accent-dark);
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .book-card-progress-bar {
+            height: 6px;
+            background: var(--surface2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .book-card-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-light), var(--accent-dark));
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        .book-card-delete {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--text3);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            line-height: 1;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .book-card-delete:hover { background: #FFE0E0; color: #E53935; }
+
+        .empty-books {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text3);
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 2px dashed var(--surface3);
+        }
+
+        .empty-books-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+        .empty-books-text { font-size: 14px; font-weight: 600; }
+        .empty-books-sub { font-size: 12px; margin-top: 6px; }
+
+        /* Reader */
+        .reader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            z-index: 300;
+            display: none;
+            flex-direction: column;
+        }
+
+        .reader-overlay.active { display: flex; }
+
+        .reader-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--surface);
+            border-bottom: 2px solid var(--surface3);
+            flex-shrink: 0;
+        }
+
+        .reader-back {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .reader-book-title {
+            font-size: 14px;
+            font-weight: 700;
+            flex: 1;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0 8px;
+        }
+
+        .reader-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 16px;
+            line-height: 1.8;
+            font-size: 16px;
+            color: var(--text);
+        }
+
+        .reader-content p {
+            margin-bottom: 16px;
+            text-indent: 2em;
+        }
+
+        .reader-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--surface);
+            border-top: 2px solid var(--surface3);
+            flex-shrink: 0;
+        }
+
+        .reader-page-btn {
+            background: var(--accent-pale);
+            border: none;
+            color: var(--text);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-appearance: none;
+        }
+
+        .reader-page-btn:hover { background: var(--accent-light); }
+        .reader-page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .reader-page-info {
+            font-size: 13px;
+            color: var(--text3);
+            font-weight: 600;
+        }
+
+        .reader-progress-bar {
+            height: 4px;
+            background: var(--surface2);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .reader-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        .reader-font-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .font-btn {
+            background: var(--surface2);
+            border: none;
+            color: var(--text2);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-appearance: none;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(61, 74, 58, 0.4);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 28px;
+            width: 100%;
+            max-width: 360px;
+            border: 2px solid var(--surface3);
+            animation: modalIn 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+        .modal-desc { font-size: 13px; color: var(--text3); margin-bottom: 20px; }
+
+        .goal-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .goal-option {
+            background: var(--surface2);
+            border: 2px solid var(--surface3);
+            color: var(--text2);
+            padding: 14px 10px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            -webkit-appearance: none;
+        }
+
+        .goal-option:hover { border-color: var(--accent); }
+        .goal-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-pale);
+            color: var(--accent-dark);
+        }
+
+        .goal-custom-row { display: flex; gap: 8px; margin-bottom: 20px; }
+
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: #FFFDF8;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+
+        .modal-btn:active { transform: scale(0.98); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--surface);
+            border: 2px solid var(--accent-light);
+            color: var(--text);
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            z-index: 400;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--shadow-lg);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.achievement { border-color: var(--accent); background: linear-gradient(135deg, var(--surface), var(--accent-pale)); }
+
+        .empty-state { text-align: center; padding: 24px 20px; color: var(--text3); }
+        .empty-state-icon { font-size: 36px; margin-bottom: 8px; display: block; }
+        .empty-state-text { font-size: 13px; font-weight: 600; }
+
+
+        .upload-card { display: flex; flex-direction: column; gap: 14px; }
+        .upload-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .upload-title-row .section-title { margin-bottom: 0; }
+        .upload-card .encoding-select {
+            min-width: 120px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            background: var(--surface);
+            font-size: 14px;
+        }
+        .upload-card .upload-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 16px 18px;
+            border-radius: 18px;
+            font-size: 16px;
+            margin-top: 2px;
+        }
+        .upload-card .format-info {
+            margin-bottom: 0;
+            padding: 16px 18px;
+            border-radius: 18px;
+            font-size: 13px;
+        }
+        .upload-card .format-info code {
+            margin: 0 3px;
+            display: inline-block;
+        }
+
+
+
+
+
+        .constellation-card { position: relative; z-index: 1; margin-top: 16px; padding: 0; border-radius: 18px; background: transparent; border: none; }
+        .constellation-sky { min-height: 250px; position: relative; border-radius: 16px; overflow: hidden; background: linear-gradient(160deg, #31264B, #5D4B82 58%, #7B679B); }
+        .constellation-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+        .constellation-lines line { stroke: rgba(221, 211, 238, 0.42); stroke-width: 0.75; }
+        .constellation-star { position: absolute; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; transform: translate(-50%, -50%); background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.50); border: 1px solid rgba(255,255,255,0.22); }
+        .constellation-star.current { width: 52px; height: 52px; background: rgba(255, 255, 255, 0.94); color: #5E4A16; box-shadow: 0 0 30px rgba(199, 183, 223, 0.48); border-color: rgba(255,255,255,0.72); }
+        .constellation-star.passed { background: rgba(199, 183, 223, 0.34); color: rgba(255,255,255,0.82); }
+        .constellation-star.locked { opacity: 1; background: #7F788B; color: #D8D3E0; border-color: #9A94A6; box-shadow: none; }
+        .constellation-star .star-label { position: absolute; top: 48px; white-space: nowrap; font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.78); text-shadow: 0 1px 6px rgba(0,0,0,0.28); }
+        .constellation-star.current .star-label { top: 58px; color: #FFFFFF; }
+        .theme-toggle-card { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 14px; background: var(--surface); border: 2px solid var(--surface3); border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow); }
+        .theme-toggle-title { font-size: 14px; font-weight: 900; color: var(--text); }
+        .theme-toggle-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+        .theme-switch { width: 58px; height: 32px; border-radius: 999px; border: none; background: var(--surface3); padding: 4px; cursor: pointer; position: relative; transition: background .2s ease; flex-shrink: 0; }
+        .theme-switch::before { content: '☀️'; position: absolute; left: 4px; top: 4px; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 12px; transition: transform .22s ease; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+        .theme-switch.active { background: var(--accent); }
+        .theme-switch.active::before { content: '🌙'; transform: translateX(26px); }
+        body.dark-theme .dino-container,
+        body.dark-theme .pet-strip {
+            background: var(--surface2);
+            border-color: var(--surface3);
+        }
+        body.dark-theme .dino-container::before { display: none; }
+        body.dark-theme .pet-strip-icon,
+        body.dark-theme .book-card-icon {
+            background: linear-gradient(135deg, #6A5A86, #D8D0EA);
+        }
+        body.dark-theme .pet-strip-bar,
+        body.dark-theme .dino-growth-bar,
+        body.dark-theme .goal-progress-bar,
+        body.dark-theme .book-card-progress-bar,
+        body.dark-theme .reader-progress-bar {
+            background: #241D31;
+        }
+        body.dark-theme .task-reward {
+            background: #F7F2FF;
+            color: #FF9800;
+            box-shadow: none;
+        }
+        body.dark-theme .constellation-sky {
+            background: #4F4268;
+        }
+        body.dark-theme .constellation-star.current {
+            background: #F7F2FF;
+        }
+        .notification-card { display: flex; flex-direction: column; gap: 12px; }
+        .notification-row { display: flex; gap: 10px; align-items: center; }
+        .notification-time { flex: 1; min-width: 0; padding: 12px 14px; border: 2px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--text1); font-size: 15px; font-weight: 800; outline: none; }
+        .notification-time:focus { border-color: var(--accent); }
+        .notification-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .notification-status { font-size: 12px; color: var(--text3); line-height: 1.45; }
+        @media (max-width: 380px) { .notification-row, .notification-actions { grid-template-columns: 1fr; flex-direction: column; align-items: stretch; } }
+
+        .onboarding-replay {
+            width: 100%;
+            margin-top: 16px;
+            background: var(--surface2);
+            border: 2px solid var(--surface3);
+            color: var(--text2);
+            padding: 13px 16px;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .onboarding-replay:hover { background: var(--accent-pale); border-color: var(--accent-light); color: var(--accent-dark); }
+        .onboarding-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1500;
+            background: rgba(245, 247, 240, 0.96);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+        .onboarding-overlay.active { display: flex; }
+        .onboarding-card {
+            width: 100%;
+            max-width: 430px;
+            background: var(--surface);
+            border: 2px solid var(--surface3);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 22px;
+            text-align: center;
+        }
+        .onboarding-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .onboarding-step {
+            font-size: 12px;
+            color: var(--text3);
+            font-weight: 900;
+            letter-spacing: 0.5px;
+        }
+        .onboarding-skip {
+            border: none;
+            background: var(--surface2);
+            color: var(--text2);
+            border-radius: 10px;
+            padding: 7px 12px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .onboarding-emoji { font-size: 58px; margin: 10px 0 12px; }
+        .onboarding-title { font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 8px; }
+        .onboarding-text { font-size: 14px; line-height: 1.5; color: var(--text2); margin-bottom: 18px; }
+        .onboarding-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 18px; }
+        .onboarding-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--surface3);
+            transition: all 0.2s;
+        }
+        .onboarding-dot.active { width: 22px; border-radius: 8px; background: var(--accent); }
+        .onboarding-actions { display: flex; gap: 10px; }
+        .onboarding-btn {
+            flex: 1;
+            border: none;
+            border-radius: 14px;
+            padding: 13px 16px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+        .onboarding-btn.secondary { background: var(--surface2); color: var(--text2); border: 2px solid var(--surface3); }
+        .onboarding-btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: #FFFDF8; box-shadow: 0 6px 20px var(--accent-glow); }
+
+        .file-input-hidden { display: none !important; }
+
+        .loading-text {
+            text-align: center;
+            padding: 20px;
+            color: var(--text3);
+            font-size: 14px;
+        }
+
+        @media (max-width: 360px) {
+            .timer-display { font-size: 48px; }
+            .achievements-grid { grid-template-columns: 1fr 1fr; }
+            .dino-stage { font-size: 64px; }
+            .books-list { max-height: calc(100vh - 280px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">✨</div>
+                <div class="logo-text">LuminaRead</div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;"><div class="streak-badge">🔥 <span id="streakDisplay">0</span> дн.</div><div class="streak-badge">✨ <span id="coinDisplay">0</span></div></div>
+        </div>
+
+        <div class="nav-tabs" id="navTabs">
+            <button class="nav-tab active" data-page="timer"><span class="nav-icon">🏡</span><span class="nav-label">Главная</span></button>
+            <button class="nav-tab" data-page="constellations"><span class="nav-icon">🌌</span><span class="nav-label">Созвездия</span></button>
+            <button class="nav-tab" data-page="stats"><span class="nav-icon">📊</span><span class="nav-label">Статистика</span></button>
+            <button class="nav-tab" data-page="achievements"><span class="nav-icon">🏆</span><span class="nav-label">Достижения</span></button>
+        </div>
+
+        <!-- Main Page -->
+        <div class="page active" id="page-timer">
+            <div class="pet-strip">
+                <div class="pet-strip-icon" id="petStripEmoji">✨</div>
+                <div class="pet-strip-info">
+                    <div class="pet-strip-title" id="petStripName">Искра</div>
+                    <div class="pet-strip-sub" id="petStripDays">0 дней роста</div>
+                    <div class="pet-strip-bar"><div class="pet-strip-fill" id="petStripFill"></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title">📚 Моя библиотека</div>
+                <div class="section-sub">Открывай книжные карточки: внутри есть текст для чтения, сохранение прогресса и твои загрузки наверху списка.</div>
+                <div class="books-list" id="booksList"></div>
+            </div>
+
+            <div class="section-card upload-card">
+                <div class="upload-title-row">
+                    <div class="section-title">📁 Загрузить свою книгу</div>
+                    <select class="encoding-select" id="encodingSelect">
+                        <option value="auto">🔄 Авто</option>
+                        <option value="UTF-8">UTF-8</option>
+                        <option value="windows-1251">Win-1251</option>
+                        <option value="KOI8-R">KOI8-R</option>
+                        <option value="ISO-8859-5">ISO-8859-5</option>
+                    </select>
+                </div>
+                <div class="format-info">
+                    <strong>Поддерживаемые форматы:</strong><br>
+                    • <code>.txt</code>, <code>.fb2</code>, <code>.pdf</code>, <code>.epub</code><br>
+                    • TXT и FB2 разбираются как текст; PDF открывается в новой вкладке, если встроенное чтение не подходит.
+                </div>
+                <button class="upload-btn" id="uploadBtn">📁 Загрузить</button>
+                <input type="file" id="fileInput" class="file-input-hidden" accept=".epub,.pdf,.txt,.text,.fb2" multiple>
+            </div>
+
+            <div class="timer-card">
+                <div class="timer-label-text">Сессия чтения</div>
+                <div class="timer-display" id="timerDisplay">00:00</div>
+                <div class="timer-session-info" id="sessionInfo">Готов начать читать?</div>
+                <div class="timer-buttons">
+                    <button class="btn btn-primary" id="timerBtn">▶ Начать</button>
+                    <button class="btn btn-secondary" id="resetBtn" style="display:none;">↺ Сброс</button>
+                </div>
+            </div>
+
+            <div class="goal-card">
+                <div class="goal-header">
+                    <div class="goal-title">🎯 Цель на сегодня</div>
+                    <button class="goal-edit" id="goalEditBtn">Изменить</button>
+                </div>
+                <div class="goal-progress-bar">
+                    <div class="goal-progress-fill" id="goalProgressFill" style="width: 0%"></div>
+                </div>
+                <div class="goal-stats">
+                    <span class="current" id="goalCurrent">0 мин</span>
+                    <span class="target" id="goalTarget">из 30 мин</span>
+                </div>
+            </div>
+
+            <div class="quick-add">
+                <div class="quick-add-title">✨ Быстро добавить минуты</div>
+                <div class="quick-add-buttons">
+                    <button class="quick-btn" data-min="5">+5 мин</button>
+                    <button class="quick-btn" data-min="10">+10 мин</button>
+                    <button class="quick-btn" data-min="15">+15 мин</button>
+                    <button class="quick-btn" data-min="30">+30 мин</button>
+                    <button class="quick-btn" data-min="60">+60 мин</button>
+                </div>
+                <div class="custom-add">
+                    <input type="number" class="custom-input" id="customMinutes" placeholder="Своё количество..." min="1" max="999">
+                    <button class="custom-add-btn" id="customAddBtn">Добавить</button>
+                </div>
+            </div>
+            <button class="onboarding-replay" id="onboardingReplayBtn">Пройти онбординг заново</button>
+            <div class="theme-toggle-card">
+                <div>
+                    <div class="theme-toggle-title">Тёмная тема</div>
+                    <div class="theme-toggle-sub">Мягкий ночной режим для чтения</div>
+                </div>
+                <button class="theme-switch" id="themeToggleBtn" aria-label="Переключить тёмную тему"></button>
+            </div>
+        </div>
+
+        <!-- Pet Page -->
+        <div class="page" id="page-constellations">
+            <div class="dino-container">
+                <div class="dino-days-badge" id="dinoDaysBadge">0 дн.</div>
+                <span class="dino-stage" id="dinoStage">✨</span>
+                <div class="dino-name" id="dinoName">Искра</div>
+                <div class="dino-progress-text" id="dinoProgress">Начни читать, чтобы зажечь созвездие!</div>
+                <div class="dino-growth-bar">
+                    <div class="dino-growth-fill" id="dinoGrowthFill" style="width: 0%"></div>
+                </div>
+                <div class="constellation-card">
+                    <div class="constellation-sky" id="constellationSky"></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title">✨ Задания</div>
+                <div class="tasks-grid" id="petTasks"></div>
+            </div>
+
+            <div class="section-card notification-card">
+                <div class="section-title">🔔 Уведомления о чтении</div>
+                <div class="section-sub">Выбери время напоминания. Уведомления приходят, пока страница открыта и разрешение включено в браузере.</div>
+                <div class="notification-row">
+                    <input type="time" class="notification-time" id="notificationTimeInput" value="20:00">
+                    <button class="custom-add-btn" id="notificationEnableBtn">Включить</button>
+                </div>
+                <div class="notification-actions">
+                    <button class="goal-edit" id="notificationDisableBtn">Выключить</button>
+                    <button class="goal-edit" id="notificationTestBtn">Проверить</button>
+                </div>
+                <div class="notification-status" id="notificationStatus">Уведомления пока не настроены.</div>
+            </div>
+        </div>
+
+        <!-- Stats Page -->
+        <div class="page" id="page-stats">
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <span class="stat-icon">⏰</span>
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-label">Всего минут</div>
+                </div>
+                <div class="stat-card today">
+                    <span class="stat-icon">⏳</span>
+                    <div class="stat-value" id="statToday">0</div>
+                    <div class="stat-label">Минут сегодня</div>
+                </div>
+                <div class="stat-card streak">
+                    <span class="stat-icon">🔥</span>
+                    <div class="stat-value" id="statStreak">0</div>
+                    <div class="stat-label">Дней подряд</div>
+                </div>
+                <div class="stat-card sessions">
+                    <span class="stat-icon">☀️</span>
+                    <div class="stat-value" id="statDaysTotal">0</div>
+                    <div class="stat-label">Дней всего</div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">📈 Статистика чтения</div>
+                <div class="chart-tabs">
+                    <button class="chart-tab active" data-chart="week">Неделя</button>
+                    <button class="chart-tab" data-chart="month">Месяц</button>
+                </div>
+                <div class="chart-bars" id="weeklyChart"></div>
+                <div class="chart-bars month-chart" id="monthlyChart" style="display:none;"></div>
+            </div>
+
+            <div class="history-card">
+                <div class="history-title">🕐 Последние сессии</div>
+                <div class="history-list" id="historyList">
+                    <div class="empty-state">
+                        <span class="empty-state-icon">📭</span>
+                        <div class="empty-state-text">Пока нет сессий</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Page -->
+        <div class="page" id="page-achievements">
+            <div class="achievements-header">
+                <div style="font-size: 48px;">🏆</div>
+                <div style="font-size: 20px; font-weight: 800; margin-top: 8px;">Достижения</div>
+                <div class="achievements-count">Разблокировано: <span id="achievementCount">0</span> / <span id="achievementTotal">0</span></div>
+            </div>
+            <div id="achievementsContainer"></div>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div class="modal-overlay" id="goalModal">
+        <div class="modal">
+            <div class="modal-title"> Дневная цель</div>
+            <div class="modal-desc">Сколько минут читать каждый день?</div>
+            <div class="goal-options" id="goalOptions">
+                <button class="goal-option" data-minutes="15">15 мин</button>
+                <button class="goal-option" data-minutes="30">30 мин</button>
+                <button class="goal-option" data-minutes="45">45 мин</button>
+                <button class="goal-option" data-minutes="60">60 мин</button>
+                <button class="goal-option" data-minutes="90">90 мин</button>
+                <button class="goal-option" data-minutes="120">120 мин</button>
+            </div>
+            <div class="goal-custom-row">
+                <input type="number" class="custom-input" id="goalCustomInput" placeholder="Своё число..." min="1" max="999">
+                <button class="custom-add-btn" id="goalCustomBtn">✓</button>
+            </div>
+            <button class="modal-btn" id="goalSaveBtn">Сохранить</button>
+        </div>
+    </div>
+
+    <!-- Reader -->
+    <div class="reader-overlay" id="readerOverlay">
+        <div class="reader-progress-bar">
+            <div class="reader-progress-fill" id="readerProgressFill" style="width: 0%"></div>
+        </div>
+        <div class="reader-header">
+            <button class="reader-back" id="readerBackBtn">← Назад</button>
+            <div class="reader-book-title" id="readerBookTitle">Книга</div>
+            <div class="reader-font-controls">
+                <button class="font-btn" id="fontDecBtn">A-</button>
+                <button class="font-btn" id="fontIncBtn">A+</button><select class="reader-encoding-select" id="readerEncodingSelect" style="display:none;"><option value="auto">Авто</option><option value="UTF-8">UTF-8</option><option value="windows-1251">Win-1251</option><option value="KOI8-R">KOI8-R</option><option value="ISO-8859-5">ISO-8859-5</option></select>
+            </div>
+        </div>
+        <div class="reader-content" id="readerContent"></div>
+        <div class="reader-controls">
+            <button class="reader-page-btn" id="readerPrevBtn">← Назад</button>
+            <span class="reader-page-info" id="readerPageInfo">1 / 1</span>
+            <button class="reader-page-btn" id="readerNextBtn">Вперёд →</button>
+        </div>
+    </div>
+
+
+    <!-- Onboarding -->
+    <div class="onboarding-overlay" id="onboardingOverlay">
+        <div class="onboarding-card">
+            <div class="onboarding-top">
+                <div class="onboarding-step" id="onboardingStep">1 / 6</div>
+                <button class="onboarding-skip" id="onboardingSkipBtn">Пропустить</button>
+            </div>
+            <div class="onboarding-emoji" id="onboardingEmoji">🐣</div>
+            <div class="onboarding-title" id="onboardingTitle">LuminaRead — Читай со звездой</div>
+            <div class="onboarding-text" id="onboardingText">Читай, собирай Искры и раскрывай свое созвездие.</div>
+            <div class="onboarding-dots" id="onboardingDots"></div>
+            <div class="onboarding-actions">
+                <button class="onboarding-btn secondary" id="onboardingPrevBtn">Назад</button>
+                <button class="onboarding-btn primary" id="onboardingNextBtn">Дальше</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ===== CONSTANTS =====
+        var STORAGE_KEY = 'luminaread_data_final';
+
+        var DINO_STAGES = [
+            { name: 'Искра', days: 0, duration: 2, emoji: '✨' },
+            { name: 'Импульс', days: 2, duration: 6, emoji: '💫' },
+            { name: 'Звезда', days: 8, duration: 10, emoji: '⭐' },
+            { name: 'Сияние', days: 18, duration: 12, emoji: '🌟' },
+            { name: 'Солнце', days: 30, duration: 14, emoji: '☀️' },
+            { name: 'Сверхновая', days: 44, duration: 22, emoji: '🌠' }
+        ];
+        var STAR_TOTAL_DAYS = 66;
+
+        var BUILT_IN_BOOKS = [
+            { id: 'classic-prince', author: 'Никколо Макиавелли', title: 'Государь', tag: 'власть и холодный ум', emoji: '♟️', desc: 'Короткий трактат о власти, страхе, выгоде и цене политической трезвости.', text: 'Никколо Макиавелли — Государь\n\nВсякое государство и всякая власть, какие имели и имеют силу над людьми, были и суть либо республики, либо единодержавия. Новые владения труднее удержать, чем наследственные: люди охотно меняют господина, надеясь на лучшее, но вскоре узнают, что перемена часто приносит новые тяготы.\n\nГосударь должен понимать, что любовь народа ценна, но безопасность власти не может держаться на одной любви. Лучше, чтобы тебя и любили, и боялись; но если приходится выбирать, надежнее внушать страх, не переходящий в ненависть.\n\nВ делах власти судят по исходу. Поэтому правителю следует казаться милосердным, верным, человечным, искренним и благочестивым, но иметь дух, готовый действовать иначе, когда необходимость требует.' },
+            { id: 'classic-oracle', author: 'Бальтасар Грасиан', title: 'Карманный оракул', tag: 'афоризмы стратегии', emoji: '🧭', desc: 'Афоризмы о самообладании, стратегии и искусстве держать дистанцию.', text: 'Бальтасар Грасиан — Карманный оракул\n\nВсе уже достигло зрелости, и более всего — искусство быть личностью. Мудрый не открывает себя сразу: пусть его узнают постепенно, чтобы интерес не иссяк раньше уважения.\n\nНе спорь с тем, кто ничего не теряет от своей неправоты. Не всякая победа нужна: иногда выигрывает тот, кто вовремя уходит от мелкого столкновения.\n\nДержи меру в надежде и страхе. Надежда делает путь светлее, страх делает шаг осторожнее; вместе они сохраняют достоинство решения.' },
+            { id: 'classic-eristic', author: 'Артур Шопенгауэр', title: 'Искусство быть правым', tag: 'логика спора', emoji: '⚔️', desc: 'Ироничный набор спорных приемов, который помогает распознавать уловки.', text: 'Артур Шопенгауэр — Искусство быть правым\n\nДиалектика есть искусство вести спор так, чтобы остаться правым независимо от истины. Кто спорит, тот часто заботится не о правильности мысли, а о видимости победы.\n\nЕсли довод противника силен, можно перенести разговор на соседний вопрос, расширить утверждение до абсурда или потребовать доказательств там, где достаточно здравого смысла.\n\nЗнание этих приемов полезно не для обмана, а для защиты: заметив уловку, легче вернуть разговор к предмету и спросить, что именно доказано.' },
+            { id: 'classic-dorian', author: 'Оскар Уайльд', title: 'Портрет Дориана Грея', tag: 'красота и расплата', emoji: '🪞', desc: 'Готическая история о красоте, желании и расплате за вечную молодость.', text: 'Оскар Уайльд — Портрет Дориана Грея\n\nМастерская была наполнена запахом роз, а легкий летний ветер шевелил занавески и приносил из сада теплую тишину. На мольберте стоял портрет юноши необыкновенной красоты.\n\nХудожник смотрел на него с тревогой человека, который вложил в работу больше, чем краски и мастерство. В лице Дориана было то безмятежное совершенство, которое кажется обещанием счастья, пока не станет испытанием.\n\nЖелание остаться молодым прозвучало почти как шутка, но в этой шутке уже пряталась судьба: пусть стареет портрет, а живое лицо остается нетронутым.' },
+            { id: 'classic-maupin', author: 'Теофиль Готье', title: 'Мадемуазель де Мопен', tag: 'маски и свобода', emoji: '🎭', desc: 'Роман о масках, свободе, любви и праве быть сложным человеком.', text: 'Теофиль Готье — Мадемуазель де Мопен\n\nЕсть души, которым тесно в готовых ролях. Они примеряют маски не ради обмана, а чтобы выяснить, какое лицо останется своим, когда чужие ожидания перестанут давить.\n\nГероиня романа ищет не удобной добродетели и не громкой славы, а права быть сложной. В ее мире красота спорит с моралью, театр — с жизнью, а любовь начинается там, где человек перестает быть понятной схемой.\n\nКаждая встреча похожа на сцену, но занавес не спасает от настоящих чувств.' },
+            { id: 'classic-heart', author: 'Эдгар Аллан По', title: 'Сердце-обличитель', tag: 'ночь и вина', emoji: '🫀', desc: 'Мрачный рассказ о вине, страхе и звуке, который невозможно заглушить.', text: 'Эдгар Аллан По — Сердце-обличитель\n\nДа, я был болен, но почему вы называете меня безумцем? Болезнь обострила мои чувства, а не разрушила их. Особенно слух: я слышал многое на земле и в небе, и порой — то, что скрывается глубже.\n\nЯ любил старика. Он никогда не обижал меня. Но его глаз, бледный и неподвижный, преследовал меня, пока одна мысль не стала сильнее сна.\n\nНочью я входил бесшумно, медленно, осторожно. И все же потом, когда дело было сделано, тишину разорвал звук: глухое биение, будто сердце заговорило из-под досок.' },
+            { id: 'classic-vurdalak', author: 'Алексей Толстой', title: 'Семья вурдалака', tag: 'готическая легенда', emoji: '🌘', desc: 'Готическая легенда о семье, ожидании и холоде за знакомым голосом.', text: 'Алексей Толстой — Семья вурдалака\n\nПутник прибыл в дом, где ожидание было тяжелее ночи. Старый Горча ушел мстить разбойнику и велел семье: если вернется позднее назначенного часа, не открывать ему дверей, потому что это будет уже не отец.\n\nВ комнате молчали. Дети прислушивались к каждому шороху, женщины крестились, а за окном темнела дорога.\n\nКогда наконец послышались шаги, радость и ужас вошли вместе. Человек у порога был похож на Горчу, говорил его голосом, просил впустить его как родного. Но в просьбе было что-то холодное, от чего кровь становилась тише.' },
+            { id: 'classic-jekyll', author: 'Роберт Льюис Стивенсон', title: 'Странная история доктора Джекила и мистера Хайда', tag: 'двойник внутри', emoji: '🧪', desc: 'История о двойнике, скрытых желаниях и опасном эксперименте над собой.', text: 'Роберт Льюис Стивенсон — Странная история доктора Джекила и мистера Хайда\n\nДоктор Джекил был человеком уважаемым, щедрым и образованным. Но он знал о себе то, что тщательно скрывал: в одной душе могут жить разные желания, и не все они готовы подчиняться имени, положению и приличию.\n\nОпыт, задуманный как освобождение, разделил его природу. Появился мистер Хайд — маленький, резкий, неприятный, словно воплощение того, что обычно прячут от света.\n\nСначала превращение казалось победой науки над совестью. Потом стало ясно: отпущенная тень не возвращается в клетку по первому приказу.' },
+            { id: 'classic-scarlet', author: 'Джек Лондон', title: 'Алая чума', tag: 'после конца мира', emoji: '🩸', desc: 'Постапокалиптический рассказ о памяти цивилизации после великой эпидемии.', text: 'Джек Лондон — Алая чума\n\nСтарик шел по берегу среди внуков, которые уже не понимали слов прежней цивилизации. Когда-то были города, университеты, корабли и миллионы людей. Потом пришла алая чума.\n\nБолезнь двигалась быстрее страха. Лица краснели, речь путалась, человек падал, и мир, построенный веками, рассыпался за недели.\n\nТеперь дети слушали рассказ как сказку о невозможном прошлом. Но старик помнил улицы, книги, шум машин и то страшное утро, когда стало ясно: знание не всегда успевает спасти тех, кто им гордится.' },
+            { id: 'classic-4338', author: 'Владимир Одоевский', title: '4338 год', tag: 'ранняя фантастика', emoji: '🔭', desc: 'Ранняя фантастика о будущем, связи, науке и ответственности человека.', text: 'Владимир Одоевский — 4338 год\n\nБудущее открывалось не как чудо, а как привычный порядок иной эпохи. Люди обменивались вестями на расстоянии, города соединялись быстрыми путями, наука входила в быт так спокойно, будто всегда там была.\n\nНо чем совершеннее становились средства, тем важнее был вопрос: сделался ли человек мудрее?\n\nВ мире 4338 года техника обещает близость, скорость и память. Однако сердце по-прежнему нуждается в выборе, а ум — в ответственности перед тем, что он создает.' },
+            { id: 'classic-adam-eve', author: 'Марк Твен', title: 'Дневник Адама и Евы', tag: 'ирония и нежность', emoji: '🍎', desc: 'Нежная и ироничная версия первой любви и первого общего дома.', text: 'Марк Твен — Дневник Адама и Евы\n\nАдам записывает события кратко и с недоумением: новое существо слишком много говорит, дает имена всему вокруг и почему-то считает, что сад станет лучше, если его объяснить.\n\nЕва смотрит на мир иначе. Для нее каждая вещь просит названия, каждый день достоин открытия, а молчаливый спутник кажется загадкой, которую стоит приручить терпением.\n\nИз шутки постепенно рождается нежность: два разных взгляда учатся быть одним домом.' },
+            { id: 'classic-devil', author: 'Амброз Бирс', title: 'Словарь Сатаны', tag: 'язвительные определения', emoji: '😈', desc: 'Язвительные определения, которые снимают с привычных слов парадную маску.', text: 'Амброз Бирс — Словарь Сатаны\n\nЦиник — человек, который видит вещи такими, каковы они есть, а не такими, какими им велят быть.\n\nДипломатия — искусство говорить так, чтобы собеседник не заметил, где именно его обвели вокруг смысла.\n\nОпыт — имя, которым люди называют свои ошибки, когда хотят, чтобы они выглядели как образование.\n\nСловарь этот не столько объясняет слова, сколько снимает с них праздничную упаковку.' }
+        ];
+        var ACHIEVEMENTS = [
+            { id: 'read_5', name: 'Хороший старт', desc: 'Прочитай 5 минут', icon: '📄', section: 'Чтение' },
+            { id: 'read_15', name: 'Начало пути', desc: 'Почитай 15 минут', icon: '📖', section: 'Чтение' },
+            { id: 'read_30', name: 'Упорный', desc: 'Почитай 30 минут', icon: '📗', section: 'Чтение' },
+            { id: 'read_60', name: 'Любопытный', desc: 'Почитай 60 минут', icon: '📘', section: 'Чтение' },
+            { id: 'read_120', name: 'Книжный червь', desc: 'Почитай 2 часа', icon: '📚', section: 'Чтение' },
+
+            { id: 'streak_3', name: 'Три дня', desc: '3 дня без перерыва', icon: '✨', section: 'Серии' },
+            { id: 'streak_7', name: 'Неделя', desc: '7 дней без перерыва', icon: '💫', section: 'Серии' },
+            { id: 'streak_14', name: 'Две недели', desc: '14 дней без перерыва', icon: '⭐', section: 'Серии' },
+            { id: 'streak_30', name: 'Месяц', desc: '30 дней без перерыва', icon: '🌟', section: 'Серии' },
+            { id: 'streak_45', name: 'Полтора месяца', desc: '45 дней без перерыва', icon: '💪', section: 'Серии' },
+            { id: 'streak_60', name: 'Два месяца', desc: '60 дней без перерыва', icon: '🔥', section: 'Серии' },
+            { id: 'streak_80', name: 'Почти сотня', desc: '80 дней без перерыва', icon: '👑', section: 'Серии' },
+            { id: 'streak_100', name: 'Сотня дней', desc: '100 дней без перерыва', icon: '💯', section: 'Серии' },
+
+            { id: 'star_spark', name: 'Искра', desc: 'Стадия Искра (2 дня до Импульса)', icon: '✨', section: 'Звезда' },
+            { id: 'star_pulse', name: 'Импульс', desc: 'Стадия Импульс (6 дней до Звезды)', icon: '💫', section: 'Звезда' },
+            { id: 'star_star', name: 'Звезда', desc: 'Стадия Звезда (10 дней до Сияния)', icon: '⭐', section: 'Звезда' },
+            { id: 'star_glow', name: 'Сияние', desc: 'Стадия Сияние (12 дней до Солнца)', icon: '🌟', section: 'Звезда' },
+            { id: 'star_sun', name: 'Солнце', desc: 'Стадия Солнце (14 дней до Сверхновой)', icon: '☀️', section: 'Звезда' },
+            { id: 'star_supernova', name: 'Сверхновая', desc: 'Стадия Сверхновая (22 дня полного сияния)', icon: '🌠', section: 'Звезда' },
+
+            { id: 'goal_once', name: 'Цель покорена', desc: 'Выполни цель 1 раз', icon: '🎯', section: 'Цели' },
+            { id: 'goal_five', name: 'Целеустремлённый', desc: 'Выполни цели 5 дней подряд', icon: '🏅', section: 'Цели' },
+            { id: 'goal_thirty', name: 'Марафонец', desc: '30 дней подряд', icon: '🏆', section: 'Цели' },
+
+            { id: 'session_5', name: 'Пять сессий', desc: '5 сессий', icon: '📝', section: 'Сессии чтения' },
+            { id: 'session_25', name: 'Двадцать пять', desc: '25 сессий', icon: '✍️', section: 'Сессии чтения' },
+            { id: 'session_100', name: 'Сотня', desc: '100 сессий', icon: '💯', section: 'Сессии чтения' },
+
+            { id: 'first_book', name: 'Первая книга', desc: 'Загрузи первую книгу', icon: '📕', section: 'Книги' },
+            { id: 'five_books', name: 'Библиотекарь', desc: 'Загрузи 5 книг', icon: '📚', section: 'Книги' }
+        ];
+
+        var ACHIEVEMENT_CHECKS = {
+            read_5: function(d) { return d.totalMinutes >= 5; },
+            read_15: function(d) { return d.totalMinutes >= 15; },
+            read_30: function(d) { return d.totalMinutes >= 30; },
+            read_60: function(d) { return d.totalMinutes >= 60; },
+            read_120: function(d) { return d.totalMinutes >= 120; },
+
+            streak_3: function(d) { return d.streak >= 3; },
+            streak_7: function(d) { return d.streak >= 7; },
+            streak_14: function(d) { return d.streak >= 14; },
+            streak_30: function(d) { return d.streak >= 30; },
+            streak_45: function(d) { return d.streak >= 45; },
+            streak_60: function(d) { return d.streak >= 60; },
+            streak_80: function(d) { return d.streak >= 80; },
+            streak_100: function(d) { return d.streak >= 100; },
+
+            star_spark: function(d) { return getGrowthDays(d) >= 0; },
+            star_pulse: function(d) { return getGrowthDays(d) >= 2; },
+            star_star: function(d) { return getGrowthDays(d) >= 8; },
+            star_glow: function(d) { return getGrowthDays(d) >= 18; },
+            star_sun: function(d) { return getGrowthDays(d) >= 30; },
+            star_supernova: function(d) { return getGrowthDays(d) >= 44; },
+
+            goal_once: function(d) { return d.todayMinutes >= d.dailyGoal; },
+            goal_five: function(d) { return d.streak >= 5; },
+            goal_thirty: function(d) { return d.streak >= 30; },
+
+            session_5: function(d) { return d.sessions.filter(function(s){ return s.type === 'reading'; }).length >= 5; },
+            session_25: function(d) { return d.sessions.filter(function(s){ return s.type === 'reading'; }).length >= 25; },
+            session_100: function(d) { return d.sessions.filter(function(s){ return s.type === 'reading'; }).length >= 100; },
+
+            first_book: function(d) { return d.books && d.books.length > 0; },
+            five_books: function(d) { return d.books && d.books.length >= 5; }
+        };
+
+        var SECTION_ORDER = ['Чтение', 'Серии', 'Звезда', 'Цели', 'Сессии чтения', 'Книги'];
+
+        // ===== STATE =====
+        var appData = {};
+        var timerInterval = null;
+        var timerSeconds = 0;
+        var isRunning = false;
+        var currentBook = null;
+        var readerFontSize = 16;
+        var pdfSessionUrls = {};
+
+        // ===== DATA =====
+        function getDefaultData() {
+            return {
+                totalMinutes: 0,
+                todayMinutes: 0,
+                dailyGoal: 30,
+                streak: 0,
+                lastActiveDate: null,
+                sessions: [],
+                unlockedAchievements: [],
+                weeklyData: {},
+                readingDays: [],
+                books: [],
+                totalReadingDays: 0,
+                petGrowthDays: 0,
+                coins: 0,
+                taskClaims: {},
+                taskReady: {},
+                builtinProgress: {},
+                onboardingSeen: false,
+                darkTheme: false,
+                notificationsEnabled: false,
+                notificationTime: '20:00',
+                notificationLastKey: null
+            };
+        }
+
+        function loadData() {
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return getDefaultData();
+                var d = JSON.parse(raw);
+                var def = getDefaultData();
+                for (var k in def) {
+                    if (d[k] === undefined) d[k] = def[k];
+                }
+                if (typeof d.readingDays === 'string') {
+                    try { d.readingDays = JSON.parse(d.readingDays); } catch(e) { d.readingDays = []; }
+                }
+                if (!Array.isArray(d.books)) d.books = [];
+                if (!d.taskClaims) d.taskClaims = {};
+                if (!d.taskReady) d.taskReady = {};
+                if (!d.builtinProgress) d.builtinProgress = {};
+                if (!d.totalReadingDays) d.totalReadingDays = Array.isArray(d.readingDays) ? d.readingDays.length : 0;
+                if (!d.petGrowthDays) d.petGrowthDays = d.streak || 0;                d.coins = parseInt(d.coins || 0, 10);
+                return d;
+            } catch(e) {
+                console.error('Load error:', e);
+                return getDefaultData();
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            } catch(e) {
+                console.error('Save error:', e);
+            }
+        }
+
+        function applyTheme() {
+            document.body.classList.toggle('dark-theme', !!appData.darkTheme);
+            var btn = document.getElementById('themeToggleBtn');
+            if (btn) btn.classList.toggle('active', !!appData.darkTheme);
+        }
+
+        function toggleTheme() {
+            appData.darkTheme = !appData.darkTheme;
+            applyTheme();
+            saveData();
+        }
+
+        function getTodayKey() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
+        function checkDayReset() {
+            var today = getTodayKey();
+            if (appData.lastActiveDate !== today) {
+                appData.todayMinutes = 0;
+                appData.lastActiveDate = today;
+                saveData();
+            }
+        }
+
+        // ===== DINOSAUR =====
+
+        function getGrowthDays(d) {
+            return d.petGrowthDays || d.totalReadingDays || d.streak || 0;
+        }
+
+        function getDinoStage(days) {
+            for (var i = DINO_STAGES.length - 1; i >= 0; i--) {
+                if (days >= DINO_STAGES[i].days) {
+                    return { name: DINO_STAGES[i].name, days: DINO_STAGES[i].days, duration: DINO_STAGES[i].duration, emoji: DINO_STAGES[i].emoji, index: i };
+                }
+            }
+            return { name: DINO_STAGES[0].name, days: 0, duration: DINO_STAGES[0].duration, emoji: DINO_STAGES[0].emoji, index: 0 };
+        }
+
+        function updateDinoDisplay() {
+            var growthDays = getGrowthDays(appData);
+            var stage = getDinoStage(growthDays);
+            document.getElementById('dinoStage').textContent = stage.emoji;
+            document.getElementById('dinoName').textContent = stage.name;
+            document.getElementById('dinoDaysBadge').textContent = appData.streak + ' дн.';
+
+            var nextInfo = null;
+            if (stage.index < DINO_STAGES.length - 1) {
+                var next = DINO_STAGES[stage.index + 1];
+                nextInfo = { name: next.name, daysNeeded: Math.max(0, next.days - growthDays), emoji: next.emoji };
+            } else {
+                nextInfo = { name: 'новый виток', daysNeeded: Math.max(0, STAR_TOTAL_DAYS - growthDays), emoji: '✨' };
+            }
+
+            if (nextInfo.daysNeeded > 0) {
+                document.getElementById('dinoProgress').textContent = 'До "' + nextInfo.name + '": ' + nextInfo.daysNeeded + ' дн. роста';
+            } else {
+                document.getElementById('dinoProgress').textContent = 'Сверхновая сияет в полную силу!';
+            }
+
+            var progress = 0;
+            if (stage.index >= DINO_STAGES.length - 1) {
+                progress = Math.min(100, Math.max(0, ((growthDays - DINO_STAGES[stage.index].days) / DINO_STAGES[stage.index].duration) * 100));
+            } else {
+                var prevDays = DINO_STAGES[stage.index].days;
+                var nextDays = DINO_STAGES[stage.index + 1].days;
+                progress = Math.min(100, Math.max(0, ((growthDays - prevDays) / (nextDays - prevDays)) * 100));
+            }
+            document.getElementById('dinoGrowthFill').style.width = progress + '%';
+
+            var stripEmoji = document.getElementById('petStripEmoji');
+            if (stripEmoji) {
+                stripEmoji.textContent = stage.emoji;
+                document.getElementById('petStripName').textContent = stage.name;
+                document.getElementById('petStripDays').textContent = growthDays + ' дн. роста · ' + appData.streak + ' дн.';
+                document.getElementById('petStripFill').style.width = progress + '%';
+            }
+            renderConstellation(stage.index);
+        }
+
+        function renderConstellation(openIndex) {
+            var sky = document.getElementById('constellationSky');
+            if (!sky) return;
+            var coords = [
+                { x: 11, y: 70 }, { x: 28, y: 44 }, { x: 45, y: 58 },
+                { x: 62, y: 32 }, { x: 78, y: 48 }, { x: 91, y: 20 }
+            ];
+            var html = '<svg class="constellation-lines" viewBox="0 0 100 100" preserveAspectRatio="none">';
+            for (var l = 0; l < coords.length - 1; l++) {
+                html += '<line x1="' + coords[l].x + '" y1="' + coords[l].y + '" x2="' + coords[l + 1].x + '" y2="' + coords[l + 1].y + '"></line>';
+            }
+            html += '</svg>';
+            for (var i = 0; i < DINO_STAGES.length; i++) {
+                var cls = i === openIndex ? 'current' : (i < openIndex ? 'passed' : 'locked');
+                html += '<div class="constellation-star ' + cls + '" style="left:' + coords[i].x + '%;top:' + coords[i].y + '%">' +
+                    (i <= openIndex ? DINO_STAGES[i].emoji : '✧') +
+                    '<span class="star-label">' + escapeHtml(DINO_STAGES[i].name) + '</span></div>';
+            }
+            sky.innerHTML = html;
+        }
+
+        function getReadingTasks() {
+            return [
+                { id: 'set_reading_goal', name: 'Поставить цель по чтению', sparks: 5 },
+                { id: 'start_new_book', name: 'Начать новую книгу', sparks: 10 },
+                { id: 'first_reward', name: 'Получить первую награду', sparks: 15 },
+                { id: 'complete_reading_goal', name: 'Выполнить цель по чтению', sparks: 20 }
+            ];
+        }
+
+        function getReadingTaskById(id) {
+            var tasks = getReadingTasks();
+            for (var i = 0; i < tasks.length; i++) {
+                if (tasks[i].id === id) return tasks[i];
+            }
+            return null;
+        }
+
+        function markTaskReady(id) {
+            if (!appData.taskReady) appData.taskReady = {};
+            if (!appData.taskClaims || !appData.taskClaims[id]) appData.taskReady[id] = true;
+        }
+
+        function readingTaskDone(id) {
+            if (id === 'set_reading_goal') return !!(appData.taskReady && appData.taskReady.set_reading_goal) || !!(appData.taskClaims && appData.taskClaims.set_reading_goal);
+            if (id === 'start_new_book') return !!(appData.taskReady && appData.taskReady.start_new_book) || !!(appData.taskClaims && appData.taskClaims.start_new_book);
+            if (id === 'first_reward') return !!(appData.taskReady && appData.taskReady.first_reward) || !!(appData.taskClaims && appData.taskClaims.first_reward);
+            if (id === 'complete_reading_goal') return appData.todayMinutes >= appData.dailyGoal || !!(appData.taskReady && appData.taskReady.complete_reading_goal) || !!(appData.taskClaims && appData.taskClaims.complete_reading_goal);
+            return false;
+        }
+
+        function renderPetTasks() {
+            var tasks = getReadingTasks();
+            var html = '';
+            for (var i = 0; i < tasks.length; i++) {
+                var task = tasks[i];
+                var done = readingTaskDone(task.id);
+                var claimed = appData.taskClaims && appData.taskClaims[task.id];
+                var ready = done && !claimed;
+                var cls = claimed ? 'claimed' : (ready ? 'ready' : '');
+                var stateText = claimed ? 'выполнено' : (ready ? 'получить' : 'в процессе');
+                html += '<div class="task-card ' + cls + '" data-task-id="' + task.id + '">' +
+                    '<div><div class="task-name">' + task.name + '</div><div class="task-state ' + (!done ? 'locked' : '') + '">' + stateText + '</div></div>' +
+                    '<div class="task-meta"><div class="task-reward">' + task.sparks + ' ✨</div></div>' +
+                '</div>';
+            }
+            document.getElementById('petTasks').innerHTML = html;
+        }
+
+
+        function clampPetValue(v) {
+            return Math.max(0, Math.round(v || 0));
+        }
+
+        function rewardPet(taskId, sparks, silent, originEl) {
+            if (!appData.taskClaims) appData.taskClaims = {};
+            if (appData.taskClaims[taskId]) return;
+            appData.taskClaims[taskId] = true;
+            if (!appData.taskReady) appData.taskReady = {};
+            appData.taskReady[taskId] = false;
+            appData.coins = Math.max(0, Math.round((appData.coins || 0) + sparks));
+            if (document.getElementById('coinDisplay')) document.getElementById('coinDisplay').textContent = appData.coins || 0;
+            animateSparksToCounter(originEl);
+            if (!silent) showToast('+' + sparks + ' ✨');
+        }
+
+        function claimTaskReward(taskId, originEl) {
+            var task = getReadingTaskById(taskId);
+            if (!task || !readingTaskDone(taskId) || (appData.taskClaims && appData.taskClaims[taskId])) return;
+            rewardPet(taskId, task.sparks, false, originEl);
+            saveData();
+            updateUI();
+        }
+
+        function animateSparksToCounter(originEl) {
+            var target = document.getElementById('coinDisplay');
+            if (!originEl || !target) return;
+            var from = originEl.getBoundingClientRect();
+            var to = target.getBoundingClientRect();
+            var spark = document.createElement('div');
+            spark.className = 'spark-fly';
+            spark.textContent = '✨';
+            spark.style.left = (from.left + from.width / 2) + 'px';
+            spark.style.top = (from.top + from.height / 2) + 'px';
+            spark.style.setProperty('--spark-x', (to.left + to.width / 2 - from.left - from.width / 2) + 'px');
+            spark.style.setProperty('--spark-y', (to.top + to.height / 2 - from.top - from.height / 2) + 'px');
+            document.body.appendChild(spark);
+            setTimeout(function() { spark.remove(); }, 760);
+        }
+
+        function checkAllReadingTasksBonus() {
+            return;
+        }
+
+        function applyPetRewards(minutes, previousToday) {
+            if (appData.todayMinutes >= appData.dailyGoal && previousToday < appData.dailyGoal) {
+                markTaskReady('complete_reading_goal');
+            }
+        }
+
+        function toggleTimer() {
+            var btn = document.getElementById('timerBtn');
+            var resetBtn = document.getElementById('resetBtn');
+            var display = document.getElementById('timerDisplay');
+
+            if (!isRunning) {
+                isRunning = true;
+                btn.textContent = '✓ Завершить';
+                btn.classList.add('running');
+                resetBtn.style.display = 'flex';
+                display.classList.add('running');
+                document.getElementById('sessionInfo').textContent = 'Читаем... 📖';
+
+                timerInterval = setInterval(function() {
+                    timerSeconds++;
+                    updateTimerDisplay();
+                }, 1000);
+            } else {
+                completeTimer();
+            }
+        }
+
+        function completeTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            timerInterval = null;
+
+            var btn = document.getElementById('timerBtn');
+            var resetBtn = document.getElementById('resetBtn');
+            var display = document.getElementById('timerDisplay');
+
+            var minutes = Math.round(timerSeconds / 60);
+            if (minutes > 0) {
+                addMinutes(minutes, true);
+                document.getElementById('sessionInfo').textContent = 'Сессия: ' + minutes + ' мин ✓';
+            } else {
+                document.getElementById('sessionInfo').textContent = 'Меньше 30 секунд — минуты не добавлены';
+            }
+
+            btn.textContent = '▶ Начать';
+            btn.classList.remove('running');
+            display.classList.remove('running');
+            timerSeconds = 0;
+            updateTimerDisplay();
+            resetBtn.style.display = 'none';
+        }
+
+        function resetTimer() {
+            if (isRunning) {
+                isRunning = false;
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            timerSeconds = 0;
+            updateTimerDisplay();
+            document.getElementById('resetBtn').style.display = 'none';
+            document.getElementById('sessionInfo').textContent = 'Готов начать читать?';
+            var btn = document.getElementById('timerBtn');
+            btn.textContent = '▶ Начать';
+            btn.classList.remove('running');
+            document.getElementById('timerDisplay').classList.remove('running');
+        }
+
+        function updateTimerDisplay() {
+            var mins = Math.floor(timerSeconds / 60);
+            var secs = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent =
+                String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        }
+
+        // ===== ADD MINUTES =====
+        function addMinutes(minutes, fromTimer) {
+            if (minutes <= 0) return;
+
+            checkDayReset();
+            var previousToday = appData.todayMinutes;
+            appData.totalMinutes += minutes;
+            appData.todayMinutes += minutes;
+
+            var today = getTodayKey();
+            if (!appData.weeklyData[today]) appData.weeklyData[today] = 0;
+            appData.weeklyData[today] += minutes;
+
+            if (!appData.readingDays) appData.readingDays = [];
+            if (appData.readingDays.indexOf(today) === -1) appData.readingDays.push(today);
+            appData.totalReadingDays = appData.readingDays.length;
+            appData.petGrowthDays = Math.max(appData.petGrowthDays || 0, appData.totalReadingDays || 0);
+
+            if (appData.todayMinutes >= appData.dailyGoal) {
+                updateStreak(today);
+            }
+
+            appData.sessions.unshift({
+                date: today,
+                type: 'reading',
+                minutes: minutes,
+                timestamp: Date.now(),
+                fromTimer: !!fromTimer
+            });
+
+            if (appData.sessions.length > 100) appData.sessions = appData.sessions.slice(0, 100);
+            applyPetRewards(minutes, previousToday);
+
+            saveData();
+            updateUI();
+            checkAchievements();
+
+            if (appData.todayMinutes >= appData.dailyGoal && (appData.todayMinutes - minutes) < appData.dailyGoal) {
+                showToast('🎉 Дневная цель достигнута!');
+            }
+        }
+
+        function updateStreak(today) {
+            var todayStreak = null;
+            for (var i = 0; i < appData.sessions.length; i++) {
+                if (appData.sessions[i].date === today && appData.sessions[i].type === 'streak') {
+                    todayStreak = appData.sessions[i];
+                    break;
+                }
+            }
+            if (!todayStreak) {
+                var yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                var yesterdayKey = yesterday.toISOString().slice(0, 10);
+
+                if (appData.readingDays && appData.readingDays.indexOf(yesterdayKey) !== -1) {
+                    appData.streak++;
+                } else {
+                    appData.streak = 1;
+                }
+                appData.totalReadingDays = appData.readingDays ? appData.readingDays.length : appData.totalReadingDays;
+                appData.petGrowthDays = Math.max(appData.petGrowthDays || 0, appData.totalReadingDays || 0);
+
+                appData.sessions.push({ date: today, type: 'streak', minutes: 0, timestamp: Date.now() });
+            }
+        }
+
+        function quickAdd(min) {
+            addMinutes(min, false);
+            showToast('+' + min + ' мин добавлено! 📚');
+        }
+
+        function addCustomMinutes() {
+            var input = document.getElementById('customMinutes');
+            var val = parseInt(input.value, 10);
+            if (!val || val <= 0) return;
+            if (val > 999) { showToast('Максимум 999'); return; }
+            addMinutes(val, false);
+            showToast('+' + val + ' мин добавлено! 📚');
+            input.value = '';
+        }
+
+        // ===== GOAL MODAL =====
+        function openGoalModal() {
+            var modal = document.getElementById('goalModal');
+            modal.classList.add('active');
+            var options = modal.querySelectorAll('.goal-option');
+            for (var i = 0; i < options.length; i++) {
+                options[i].classList.toggle('selected', parseInt(options[i].dataset.minutes, 10) === appData.dailyGoal);
+            }
+        }
+
+        function closeGoalModal() {
+            document.getElementById('goalModal').classList.remove('active');
+        }
+
+        function selectGoalOption(btn) {
+            var options = document.querySelectorAll('.goal-option');
+            for (var i = 0; i < options.length; i++) {
+                options[i].classList.remove('selected');
+            }
+            btn.classList.add('selected');
+            appData.dailyGoal = parseInt(btn.dataset.minutes, 10);
+            markTaskReady('set_reading_goal');
+            checkAllReadingTasksBonus();
+            document.getElementById('goalCustomInput').value = '';
+            saveData();
+            updateUI();
+            showToast('Цель: ' + appData.dailyGoal + ' мин/день 🎯');
+        }
+
+        function setCustomGoal() {
+            var input = document.getElementById('goalCustomInput');
+            var val = parseInt(input.value, 10);
+            if (!val || val <= 0 || val > 999) return;
+            appData.dailyGoal = val;
+            markTaskReady('set_reading_goal');
+            checkAllReadingTasksBonus();
+            var options = document.querySelectorAll('.goal-option');
+            for (var i = 0; i < options.length; i++) {
+                options[i].classList.remove('selected');
+            }
+            saveData();
+            updateUI();
+            showToast('Цель: ' + appData.dailyGoal + ' мин/день 🎯');
+        }
+
+        // ===== ENCODING =====
+        function detectEncoding(buffer) {
+            var bytes = new Uint8Array(buffer);
+            if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) return 'UTF-8';
+            if (bytes[0] === 0xFF && bytes[1] === 0xFE) return 'UTF-16LE';
+            try {
+                var utf8Text = new TextDecoder('UTF-8', { fatal: true }).decode(bytes.slice(0, 800));
+                if ((utf8Text.match(/[а-яА-ЯёЁ]/g) || []).length > 8) return 'UTF-8';
+            } catch(e) {}
+            try {
+                var cp1251Text = new TextDecoder('windows-1251').decode(bytes.slice(0, 800));
+                if ((cp1251Text.match(/[а-яА-ЯёЁ]/g) || []).length > 8) return 'windows-1251';
+            } catch(e) {}
+            return 'UTF-8';
+        }
+
+        function scoreDecodedText(text) {
+            var cyr = (text.match(/[а-яА-ЯёЁ]/g) || []).length;
+            var bad = (text.match(/[�]/g) || []).length;
+            var tags = (text.match(/<[^>]+>/g) || []).length;
+            return cyr * 3 + tags - bad * 20;
+        }
+
+        function decodeBuffer(buffer, encodingMode) {
+            if (encodingMode && encodingMode !== 'auto') {
+                var forced = encodingMode === 'windows-1251' ? 'windows-1251' :
+                             encodingMode === 'KOI8-R' ? 'koi8-r' :
+                             encodingMode === 'ISO-8859-5' ? 'iso-8859-5' :
+                             encodingMode === 'UTF-16LE' ? 'utf-16le' : 'utf-8';
+                return { text: new TextDecoder(forced).decode(buffer), encoding: encodingMode };
+            }
+            var bytes = new Uint8Array(buffer);
+            var head = new TextDecoder('latin1').decode(bytes.slice(0, 300));
+            var declared = head.match(/encoding=["']([^"']+)["']/i);
+            var candidates = declared ? [declared[1]] : [];
+            candidates = candidates.concat(['UTF-8', 'windows-1251', 'KOI8-R', 'ISO-8859-5', 'UTF-16LE']);
+            var best = { text: '', encoding: 'UTF-8', score: -Infinity };
+            for (var i = 0; i < candidates.length; i++) {
+                try {
+                    var label = candidates[i];
+                    var encName = /1251/i.test(label) ? 'windows-1251' :
+                                  /koi8/i.test(label) ? 'koi8-r' :
+                                  /8859-5/i.test(label) ? 'iso-8859-5' :
+                                  /utf-16/i.test(label) ? 'utf-16le' : 'utf-8';
+                    var text = new TextDecoder(encName).decode(buffer);
+                    var score = scoreDecodedText(text);
+                    if (score > best.score) best = { text: text, encoding: label, score: score };
+                } catch(e) {}
+            }
+            return { text: best.text, encoding: best.encoding };
+        }
+
+        // ===== BOOKS =====
+        async function handleFileUpload(event) {
+            var files = Array.prototype.slice.call(event.target.files || []);
+            if (!files.length) return;
+            document.getElementById('booksList').innerHTML = '<div class="loading-text">Загрузка ' + files.length + ' файл(ов)...</div>';
+            var loaded = 0;
+            for (var i = 0; i < files.length; i++) {
+                try {
+                    var book = await makeBookFromFile(files[i]);
+                    appData.books.unshift(book);
+                    loaded++;
+                } catch(err) {
+                    showToast('Не удалось прочитать: ' + files[i].name);
+                }
+            }
+            saveData();
+            renderBooks();
+            checkAchievements();
+            event.target.value = '';
+            if (loaded) showToast('Загружено книг: ' + loaded);
+        }
+
+        async function makeBookFromFile(file) {
+            var buffer = await file.arrayBuffer();
+            var ext = (file.name.split('.').pop() || '').toLowerCase();
+            var encodingMode = document.getElementById('encodingSelect').value;
+            var result;
+            if (ext === 'fb2') result = parseFb2(buffer, 'auto');
+            else if (ext === 'pdf') result = await parsePdf(buffer);
+            else if (ext === 'epub') result = await parseEpub(buffer);
+            else result = decodeBuffer(buffer, encodingMode);
+            var clean = normalizeBookText(result.text);
+            if (!clean || clean.length < 20) {
+                clean = ext === 'pdf' ? 'PDF будет открыт в новой вкладке.' : 'Текст не удалось извлечь полностью. Файл добавлен как карточка; попробуй загрузить TXT или FB2-версию этой книги для комфортного чтения.';
+            }
+            var bookId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8);
+            if (ext === 'pdf') {
+                pdfSessionUrls[bookId] = URL.createObjectURL(new Blob([buffer], { type: 'application/pdf' }));
+            }
+            return {
+                id: bookId,
+                name: file.name.replace(/\.(epub|pdf|txt|text|fb2)$/i, ''),
+                author: 'Пользовательская книга',
+                title: file.name.replace(/\.(epub|pdf|txt|text|fb2)$/i, ''),
+                desc: 'Пользовательская книга',
+                emoji: getFormatEmoji(ext),
+                rawBase64: (ext === 'fb2' || ext === 'txt' || ext === 'text' || ext === 'pdf') && buffer.byteLength < 3500000 ? arrayBufferToBase64(buffer) : null,
+                rawFormat: ext,
+                externalOpen: ext === 'pdf',
+                pages: splitIntoPages(clean, 900),
+                currentPage: 0,
+                totalWords: clean.split(/\s+/).filter(function(w){ return w.length > 0; }).length,
+                encoding: result.encoding || ext.toUpperCase(),
+                addedDate: getTodayKey(),
+                lastRead: null,
+                userBook: true
+            };
+        }
+
+
+        function arrayBufferToBase64(buffer) {
+            var bytes = new Uint8Array(buffer);
+            var binary = '';
+            for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+            return btoa(binary);
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binary = atob(base64);
+            var bytes = new Uint8Array(binary.length);
+            for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return bytes.buffer;
+        }
+
+        function getFormatEmoji(ext) {
+            if (ext === 'pdf') return '📄';
+            if (ext === 'epub') return '📘';
+            if (ext === 'fb2') return '📗';
+            return '📕';
+        }
+
+        function parseFb2(buffer, encodingMode) {
+            var decoded = decodeBuffer(buffer, encodingMode);
+            var xml = new DOMParser().parseFromString(decoded.text, 'text/xml');
+            var bodies = Array.prototype.slice.call(xml.getElementsByTagName('body'));
+            var text = bodies.map(function(body) { return body.textContent || ''; }).join('\n\n');
+            return { text: text || decoded.text.replace(/<[^>]+>/g, ' '), encoding: decoded.encoding };
+        }
+
+        async function parsePdf(buffer) {
+            var raw = new TextDecoder('latin1').decode(buffer);
+            var chunks = [];
+
+            function collectText(str) {
+                var parts = [];
+                var literal = str.match(/\((?:\\.|[^\\)]){2,}\)/g) || [];
+                for (var i = 0; i < literal.length; i++) {
+                    parts.push(literal[i].slice(1, -1).replace(/\\\)/g, ')').replace(/\\\(/g, '(').replace(/\\n/g, ' '));
+                }
+                var hex = str.match(/<([0-9A-Fa-f\s]{4,})>/g) || [];
+                for (var j = 0; j < hex.length; j++) {
+                    var clean = hex[j].replace(/[<>\s]/g, '');
+                    var out = '';
+                    for (var k = 0; k < clean.length; k += 4) {
+                        var code = parseInt(clean.substr(k, 4), 16);
+                        if (code && code < 65535) out += String.fromCharCode(code);
+                    }
+                    parts.push(out);
+                }
+                return parts.join(' ');
+            }
+
+            chunks.push(collectText(raw));
+            var streams = raw.match(/stream\r?\n[\s\S]*?\r?\nendstream/g) || [];
+            for (var i = 0; i < Math.min(streams.length, 80); i++) {
+                var block = streams[i].replace(/^stream\r?\n/, '').replace(/\r?\nendstream$/, '');
+                try {
+                    var bytes = new Uint8Array(block.length);
+                    for (var b = 0; b < block.length; b++) bytes[b] = block.charCodeAt(b) & 255;
+                    if (typeof DecompressionStream !== 'undefined') {
+                        var inflated = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate'))).arrayBuffer();
+                        chunks.push(collectText(new TextDecoder('latin1').decode(inflated)));
+                    }
+                } catch(e) {}
+            }
+            var text = normalizeBookText(chunks.join(' '));
+            return { text: text || 'PDF будет открыт в новой вкладке.', encoding: 'PDF' };
+        }
+
+        async function parseEpub(buffer) {
+            try {
+                var entries = readZipEntries(buffer);
+                var textEntries = entries.filter(function(e) { return /\.(xhtml|html|htm|txt)$/i.test(e.name); });
+                var chunks = [];
+                for (var i = 0; i < Math.min(textEntries.length, 30); i++) {
+                    var bytes = await inflateZipEntry(buffer, textEntries[i]);
+                    chunks.push(stripHtml(new TextDecoder('utf-8').decode(bytes)));
+                }
+                return { text: chunks.join('\n\n'), encoding: 'EPUB' };
+            } catch(e) {
+                return { text: 'EPUB загружен, но этот файл не удалось распаковать встроенным чтением. Попробуй TXT или FB2-версию.', encoding: 'EPUB' };
+            }
+        }
+
+        function readZipEntries(buffer) {
+            var view = new DataView(buffer);
+            var entries = [];
+            for (var p = 0; p < view.byteLength - 46; p++) {
+                if (view.getUint32(p, true) === 0x02014b50) {
+                    var method = view.getUint16(p + 10, true);
+                    var compressedSize = view.getUint32(p + 20, true);
+                    var nameLen = view.getUint16(p + 28, true);
+                    var extraLen = view.getUint16(p + 30, true);
+                    var commentLen = view.getUint16(p + 32, true);
+                    var localOffset = view.getUint32(p + 42, true);
+                    var name = new TextDecoder('utf-8').decode(new Uint8Array(buffer, p + 46, nameLen));
+                    entries.push({ name: name, method: method, compressedSize: compressedSize, localOffset: localOffset });
+                    p += 45 + nameLen + extraLen + commentLen;
+                }
+            }
+            return entries;
+        }
+
+        async function inflateZipEntry(buffer, entry) {
+            var view = new DataView(buffer, entry.localOffset);
+            var nameLen = view.getUint16(26, true);
+            var extraLen = view.getUint16(28, true);
+            var start = entry.localOffset + 30 + nameLen + extraLen;
+            var compressed = new Uint8Array(buffer, start, entry.compressedSize);
+            if (entry.method === 0) return compressed;
+            if (entry.method !== 8 || typeof DecompressionStream === 'undefined') throw new Error('unsupported zip method');
+            var stream = new Blob([compressed]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+            return new Uint8Array(await new Response(stream).arrayBuffer());
+        }
+
+        function stripHtml(text) {
+            return (text || '').replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        }
+
+        function normalizeBookText(text) {
+            return stripHtml(text).replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+        }
+
+        function splitIntoPages(text, charsPerPage) {
+            var pages = [];
+            var remaining = text.trim();
+            while (remaining.length > 0) {
+                if (remaining.length <= charsPerPage) {
+                    pages.push(remaining.trim());
+                    break;
+                }
+                var splitPoint = remaining.lastIndexOf('.', charsPerPage);
+                if (splitPoint < charsPerPage * 0.5) splitPoint = remaining.lastIndexOf('\n', charsPerPage);
+                if (splitPoint < charsPerPage * 0.5) splitPoint = charsPerPage;
+                pages.push(remaining.substring(0, splitPoint + 1).trim());
+                remaining = remaining.substring(splitPoint + 1).trim();
+            }
+            return pages.filter(function(p) { return p.length > 0; });
+        }
+
+        function getAllBooks() {
+            var userBooks = (appData.books || []).map(function(book) {
+                book.author = book.userBook ? 'Пользовательская книга' : (book.author || 'Автор неизвестен');
+                book.title = book.title || book.name || 'Без названия';
+                book.desc = book.desc || 'Пользовательская книга';
+                book.emoji = book.emoji || '📕';
+                return book;
+            });
+            var builtIns = BUILT_IN_BOOKS.map(function(book) {
+                var pages = splitIntoPages(book.text, 900);
+                var currentPage = (appData.builtinProgress && appData.builtinProgress[book.id]) || 0;
+                return {
+                    id: book.id,
+                    name: book.author + ' — «' + book.title + '»',
+                    author: book.author,
+                    title: book.title,
+                    desc: book.desc,
+                    emoji: book.emoji,
+                    pages: pages,
+                    currentPage: Math.min(currentPage, pages.length - 1),
+                    totalWords: book.text.split(/\s+/).filter(function(w){ return w.length > 0; }).length,
+                    encoding: book.tag,
+                    builtIn: true
+                };
+            });
+            return userBooks.concat(builtIns);
+        }
+
+        function deleteBook(bookId) {
+            if (!confirm('Удалить эту книгу?')) return;
+            appData.books = appData.books.filter(function(b) { return b.id !== bookId; });
+            saveData();
+            renderBooks();
+            showToast('Книга удалена');
+        }
+
+        function getBookProgress(book) {
+            if (!book.pages || book.pages.length <= 1) return 0;
+            return Math.round((book.currentPage / (book.pages.length - 1)) * 100);
+        }
+
+
+        function bindBookListEvents() {
+            var container = document.getElementById('booksList');
+            if (!container || container.dataset.bound === '1') return;
+            container.dataset.bound = '1';
+            container.addEventListener('click', function(e) {
+                var deleteBtn = e.target.closest('.book-card-delete');
+                if (deleteBtn) {
+                    e.stopPropagation();
+                    deleteBook(deleteBtn.getAttribute('data-bookid'));
+                    return;
+                }
+                var card = e.target.closest('.book-card');
+                if (card && container.contains(card)) {
+                    openBook(card.getAttribute('data-bookid'));
+                }
+            });
+        }
+
+        function renderBooks() {
+            var container = document.getElementById('booksList');
+            var allBooks = getAllBooks();
+            var html = '';
+            for (var i = 0; i < allBooks.length; i++) {
+                var book = allBooks[i];
+                var progress = getBookProgress(book);
+                html += '<div class="book-card" data-bookid="' + book.id + '">' +
+                    '<div class="book-card-icon">' + escapeHtml(book.emoji || '📖') + '</div>' +
+                    '<div class="book-card-info">' +
+                        (book.userBook ? '' : '<div class="book-card-author">' + escapeHtml(book.author || 'Автор неизвестен') + '</div>') +
+                        '<div class="book-card-title">' + escapeHtml(book.title || book.name || 'Без названия') + '</div>' +
+                        '<div class="book-card-desc">' + escapeHtml(book.desc || 'Описание не добавлено') + '</div>' +
+                        '<div class="book-card-meta">' + book.pages.length + ' стр. · ' + book.totalWords + ' слов · ' + escapeHtml(book.encoding || 'UTF-8') + '</div>' +
+                        '<div class="book-card-progress-text">Прогресс: ' + progress + '%</div>' +
+                        '<div class="book-card-progress-bar"><div class="book-card-progress-fill" style="width: ' + progress + '%"></div></div>' +
+                    '</div>' +
+                    (book.userBook ? '<button class="book-card-delete" data-bookid="' + book.id + '" title="Удалить">×</button>' : '') +
+                '</div>';
+            }
+            container.innerHTML = html;
+            bindBookListEvents();
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+        // ===== READER =====
+
+        function openPdfBook(book) {
+            if (pdfSessionUrls[book.id]) {
+                window.open(pdfSessionUrls[book.id], '_blank');
+                showToast('PDF открыт в новой вкладке');
+                return;
+            }
+            if (book.rawBase64) {
+                var byteChars = atob(book.rawBase64);
+                var bytes = new Uint8Array(byteChars.length);
+                for (var i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+                var url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+                window.open(url, '_blank');
+                setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+                showToast('PDF открыт в новой вкладке');
+            } else {
+                showToast('PDF слишком большой для сохранения в браузере. Загрузите файл заново и откройте его отдельно.');
+            }
+        }
+
+        function openBook(bookId) {
+            var allBooks = getAllBooks();
+            var book = null;
+            for (var i = 0; i < allBooks.length; i++) {
+                if (allBooks[i].id === bookId) {
+                    book = allBooks[i];
+                    break;
+                }
+            }
+            if (!book) return;
+            if (book.externalOpen && book.rawFormat === 'pdf') { openPdfBook(book); return; }
+            if (!book.pages || book.pages.length === 0) return;
+            markTaskReady('start_new_book');
+            checkAllReadingTasksBonus();
+
+            currentBook = book;
+            book.lastRead = Date.now();
+
+            document.getElementById('readerBookTitle').textContent = book.name;
+            var readerEncodingSelect = document.getElementById('readerEncodingSelect');
+            readerEncodingSelect.style.display = book.rawBase64 ? 'block' : 'none';
+            readerEncodingSelect.value = 'auto';
+            document.getElementById('readerOverlay').classList.add('active');
+            document.getElementById('readerContent').style.fontSize = readerFontSize + 'px';
+
+            renderReaderPage();
+            saveData();
+        }
+
+        function closeReader() {
+            document.getElementById('readerOverlay').classList.remove('active');
+            currentBook = null;
+            saveData();
+            renderBooks();
+        }
+
+        function renderReaderPage() {
+            if (!currentBook) return;
+
+            var page = currentBook.pages[currentBook.currentPage];
+            var content = document.getElementById('readerContent');
+
+            var paragraphs = page.split('\n').filter(function(p) { return p.trim().length > 0; });
+            var html = '';
+            for (var i = 0; i < paragraphs.length; i++) {
+                html += '<p>' + escapeHtml(paragraphs[i]) + '</p>';
+            }
+            content.innerHTML = html;
+
+            document.getElementById('readerPageInfo').textContent = (currentBook.currentPage + 1) + ' / ' + currentBook.pages.length;
+
+            var progress = ((currentBook.currentPage + 1) / currentBook.pages.length) * 100;
+            document.getElementById('readerProgressFill').style.width = progress + '%';
+
+            document.getElementById('readerPrevBtn').disabled = (currentBook.currentPage === 0);
+            document.getElementById('readerNextBtn').disabled = (currentBook.currentPage >= currentBook.pages.length - 1);
+
+            content.scrollTop = 0;
+        }
+
+
+        function persistCurrentBookPage() {
+            if (!currentBook) return;
+            if (currentBook.builtIn) {
+                if (!appData.builtinProgress) appData.builtinProgress = {};
+                appData.builtinProgress[currentBook.id] = currentBook.currentPage;
+            } else {
+                for (var i = 0; i < appData.books.length; i++) {
+                    if (appData.books[i].id === currentBook.id) {
+                        appData.books[i].currentPage = currentBook.currentPage;
+                        appData.books[i].lastRead = Date.now();
+                        break;
+                    }
+                }
+            }
+        }
+
+        function changeReaderEncoding() {
+            if (!currentBook || !currentBook.rawBase64) return;
+            var mode = document.getElementById('readerEncodingSelect').value;
+            var buffer = base64ToArrayBuffer(currentBook.rawBase64);
+            var decoded = currentBook.rawFormat === 'fb2' || /\.fb2$/i.test(currentBook.name || '') ? parseFb2(buffer, mode) : decodeBuffer(buffer, mode);
+            var clean = normalizeBookText(decoded.text);
+            currentBook.pages = splitIntoPages(clean, 900);
+            currentBook.currentPage = 0;
+            currentBook.encoding = decoded.encoding;
+            persistCurrentBookPage();
+            renderReaderPage();
+            saveData();
+        }
+
+        function readerNextPage() {
+            if (!currentBook || currentBook.currentPage >= currentBook.pages.length - 1) return;
+            currentBook.currentPage++;
+            persistCurrentBookPage();
+            renderReaderPage();
+            saveData();
+        }
+
+        function readerPrevPage() {
+            if (!currentBook || currentBook.currentPage <= 0) return;
+            currentBook.currentPage--;
+            persistCurrentBookPage();
+            renderReaderPage();
+            saveData();
+        }
+
+        function changeFontSize(delta) {
+            readerFontSize = Math.max(12, Math.min(28, readerFontSize + delta * 2));
+            document.getElementById('readerContent').style.fontSize = readerFontSize + 'px';
+        }
+
+        // ===== UI UPDATE =====
+        function updateUI() {
+            document.getElementById('streakDisplay').textContent = appData.streak;
+            document.getElementById('coinDisplay').textContent = appData.coins || 0;
+            updateDinoDisplay();
+
+            var goalPct = Math.min(100, (appData.todayMinutes / appData.dailyGoal) * 100);
+            var fill = document.getElementById('goalProgressFill');
+            fill.style.width = goalPct + '%';
+            fill.classList.toggle('complete', goalPct >= 100);
+            document.getElementById('goalCurrent').textContent = appData.todayMinutes + ' мин';
+            document.getElementById('goalTarget').textContent = 'из ' + appData.dailyGoal + ' мин';
+
+            document.getElementById('statTotal').textContent = formatMinutes(appData.totalMinutes);
+            document.getElementById('statToday').textContent = appData.todayMinutes;
+            document.getElementById('statStreak').textContent = appData.streak;
+            document.getElementById('statDaysTotal').textContent = appData.totalReadingDays || (appData.readingDays ? appData.readingDays.length : 0);
+
+            renderCharts();
+            renderHistory();
+            renderAchievements();
+            renderPetTasks();
+            renderBooks();
+            renderNotificationSettings();
+        }
+
+        function formatMinutes(total) {
+            if (total < 60) return String(total);
+            var h = Math.floor(total / 60);
+            var m = total % 60;
+            if (m === 0) return h + 'ч';
+            return h + 'ч ' + m + 'м';
+        }
+
+        function renderCharts() {
+            renderPeriodChart('weeklyChart', 7, false);
+            renderPeriodChart('monthlyChart', 30, true);
+        }
+
+        function renderPeriodChart(containerId, count, monthMode) {
+            var container = document.getElementById(containerId);
+            var today = new Date();
+            var maxVal = 1;
+            var data = [];
+            for (var i = count - 1; i >= 0; i--) {
+                var d = new Date(today);
+                d.setDate(d.getDate() - i);
+                var key = d.toISOString().slice(0, 10);
+                var val = appData.weeklyData[key] || 0;
+                var label = monthMode ? String(d.getDate()) : ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][d.getDay()];
+                data.push({ label: label, value: val, isToday: i === 0 });
+                if (val > maxVal) maxVal = val;
+            }
+            var html = '';
+            for (var j = 0; j < data.length; j++) {
+                var item = data[j];
+                var height = Math.max(4, (item.value / maxVal) * 100);
+                var cls = item.isToday ? 'chart-bar today-bar' : 'chart-bar';
+                html += '<div class="chart-bar-wrapper">' +
+                    '<div class="chart-bar-value">' + (item.value > 0 && !monthMode ? item.value : '') + '</div>' +
+                    '<div class="' + cls + '" style="height: ' + height + '%"></div>' +
+                    '<div class="chart-bar-label">' + item.label + '</div>' +
+                '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function renderHistory() {
+            var container = document.getElementById('historyList');
+            var readingSessions = appData.sessions.filter(function(s) { return s.type === 'reading'; });
+
+            if (readingSessions.length === 0) {
+                container.innerHTML = '<div class="empty-state"><span class="empty-state-icon">📭</span><div class="empty-state-text">Пока нет сессий</div></div>';
+                return;
+            }
+
+            var html = '';
+            var limit = Math.min(20, readingSessions.length);
+            for (var i = 0; i < limit; i++) {
+                var s = readingSessions[i];
+                var date = new Date(s.timestamp);
+                var timeStr = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                var dateStr = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+                html += '<div class="history-item">' +
+                    '<div class="history-item-left">' +
+                        '<div class="history-item-icon">📖</div>' +
+                        '<div>' +
+                            '<div class="history-item-time">' + timeStr + '</div>' +
+                            '<div class="history-item-date">' + dateStr + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="history-item-minutes">' + s.minutes + ' мин</div>' +
+                '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        // ===== ACHIEVEMENTS =====
+        function checkAchievements() {
+            var before = appData.unlockedAchievements.length;
+            var newUnlocks = [];
+            for (var i = 0; i < ACHIEVEMENTS.length; i++) {
+                var ach = ACHIEVEMENTS[i];
+                var checkFn = ACHIEVEMENT_CHECKS[ach.id];
+                if (checkFn && appData.unlockedAchievements.indexOf(ach.id) === -1 && checkFn(appData)) {
+                    appData.unlockedAchievements.push(ach.id);
+                    newUnlocks.push(ach);
+                }
+            }
+            if (before > 0 && !(appData.taskClaims && appData.taskClaims.first_reward)) {
+                markTaskReady('first_reward');
+                checkAllReadingTasksBonus();
+                saveData();
+            }
+            if (newUnlocks.length > 0) {
+                if (before === 0) {
+                    markTaskReady('first_reward');
+                    checkAllReadingTasksBonus();
+                }
+                saveData();
+                newUnlocks.forEach(function(ach, idx) {
+                    setTimeout(function() {
+                        showToast(' Достижение: ' + ach.name + '!', true);
+                    }, idx * 600);
+                });
+            }
+        }
+
+        function renderAchievements() {
+            var container = document.getElementById('achievementsContainer');
+            document.getElementById('achievementCount').textContent = appData.unlockedAchievements.length;
+            document.getElementById('achievementTotal').textContent = ACHIEVEMENTS.length;
+
+            // Group achievements by section
+            var sections = {};
+            for (var i = 0; i < ACHIEVEMENTS.length; i++) {
+                var ach = ACHIEVEMENTS[i];
+                if (!sections[ach.section]) sections[ach.section] = [];
+                sections[ach.section].push(ach);
+            }
+
+            var html = '';
+            for (var s = 0; s < SECTION_ORDER.length; s++) {
+                var sectionName = SECTION_ORDER[s];
+                if (!sections[sectionName]) continue;
+                
+                var sectionAchievements = sections[sectionName];
+                
+                // Section header centered with lines
+                html += '<div class="achievement-section-header">';
+                html += '<span class="achievement-section-title">' + sectionName.toUpperCase() + '</span>';
+                html += '</div>';
+                
+                // Grid of achievements
+                html += '<div class="achievements-grid">';
+                for (var j = 0; j < sectionAchievements.length; j++) {
+                    var ach = sectionAchievements[j];
+                    var unlocked = appData.unlockedAchievements.indexOf(ach.id) !== -1;
+                    html += '<div class="achievement-card ' + (unlocked ? 'unlocked' : '') + '">' +
+                        '<div class="achievement-check">✓</div>' +
+                        '<span class="achievement-icon">' + ach.icon + '</span>' +
+                        '<div class="achievement-name">' + ach.name + '</div>' +
+                        '<div class="achievement-desc">' + ach.desc + '</div>' +
+                    '</div>';
+                }
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        var notificationTimer = null;
+        var notificationWatchTimer = null;
+        var NOTIFICATION_TEXTS = [
+            'Сейчас отличный момент, чтобы почитать ✨📖',
+            'Идеальное время для книги! 📚✨',
+            'Самое время для хорошей книги 📚',
+            'Подари себе минуты чтения ✨🌟'
+        ];
+
+        function getNotificationText() {
+            var dayIndex = Math.floor(Date.now() / 86400000);
+            return NOTIFICATION_TEXTS[dayIndex % NOTIFICATION_TEXTS.length];
+        }
+
+        function renderNotificationSettings() {
+            var input = document.getElementById('notificationTimeInput');
+            if (!input) return;
+            input.value = appData.notificationTime || '20:00';
+            var status = document.getElementById('notificationStatus');
+            var enabledBtn = document.getElementById('notificationEnableBtn');
+            var disabledBtn = document.getElementById('notificationDisableBtn');
+            var supported = 'Notification' in window;
+            if (!supported) {
+                status.textContent = appData.notificationsEnabled ? 'Системные уведомления недоступны, поэтому напоминание появится внутри страницы.' : 'Системные уведомления недоступны, но можно включить напоминание внутри страницы.';
+                enabledBtn.disabled = appData.notificationsEnabled;
+                disabledBtn.disabled = !appData.notificationsEnabled;
+                return;
+            }
+            enabledBtn.disabled = appData.notificationsEnabled && Notification.permission === 'granted';
+            disabledBtn.disabled = !appData.notificationsEnabled;
+            if (appData.notificationsEnabled && Notification.permission === 'granted') {
+                status.textContent = 'Напоминание включено на ' + (appData.notificationTime || '20:00') + '.';
+            } else if (appData.notificationsEnabled) {
+                status.textContent = 'Системные уведомления не разрешены, поэтому напоминание появится внутри страницы в ' + (appData.notificationTime || '20:00') + '.';
+            } else if (Notification.permission === 'denied') {
+                status.textContent = 'Уведомления запрещены в браузере. Разреши их в настройках сайта, если захочешь включить напоминания.';
+            } else {
+                status.textContent = 'Уведомления пока выключены. Они работают, пока эта страница открыта.';
+            }
+        }
+
+        function saveNotificationTime() {
+            var input = document.getElementById('notificationTimeInput');
+            appData.notificationTime = input && input.value ? input.value : '20:00';
+            saveData();
+            renderNotificationSettings();
+            scheduleReadingNotification();
+        }
+
+        function enableReadingNotifications() {
+            if (!('Notification' in window)) {
+                appData.notificationsEnabled = true;
+                saveData();
+                renderNotificationSettings();
+                scheduleReadingNotification();
+                showToast('Включены напоминания внутри страницы');
+                return;
+            }
+            saveNotificationTime();
+            Notification.requestPermission().then(function(permission) {
+                if (permission === 'granted') {
+                    appData.notificationsEnabled = true;
+                    saveData();
+                    renderNotificationSettings();
+                    scheduleReadingNotification();
+                    showToast('Уведомления включены');
+                } else {
+                    appData.notificationsEnabled = true;
+                    saveData();
+                    renderNotificationSettings();
+                    scheduleReadingNotification();
+                    showToast('Буду напоминать внутри страницы');
+                }
+            });
+        }
+
+        function disableReadingNotifications() {
+            appData.notificationsEnabled = false;
+            saveData();
+            if (notificationTimer) clearTimeout(notificationTimer);
+            if (notificationWatchTimer) clearInterval(notificationWatchTimer);
+            notificationTimer = null;
+            notificationWatchTimer = null;
+            renderNotificationSettings();
+            showToast('Уведомления выключены');
+        }
+
+        function scheduleReadingNotification() {
+            if (notificationTimer) clearTimeout(notificationTimer);
+            if (notificationWatchTimer) clearInterval(notificationWatchTimer);
+            notificationTimer = null;
+            notificationWatchTimer = null;
+            if (!appData.notificationsEnabled) return;
+            notificationWatchTimer = setInterval(checkReadingNotificationDue, 30000);
+            checkReadingNotificationDue();
+        }
+
+        function getNotificationKeyForDate(date) {
+            return date.toISOString().slice(0, 10) + '-' + (appData.notificationTime || '20:00');
+        }
+
+        function checkReadingNotificationDue() {
+            if (!appData.notificationsEnabled) return;
+            var parts = (appData.notificationTime || '20:00').split(':');
+            var hours = parseInt(parts[0], 10);
+            var minutes = parseInt(parts[1], 10);
+            if (isNaN(hours) || isNaN(minutes)) return;
+            var now = new Date();
+            var due = new Date();
+            due.setHours(hours, minutes, 0, 0);
+            var diff = now.getTime() - due.getTime();
+            if (diff >= 0 && diff < 5 * 60 * 1000) {
+                showReadingNotification(false);
+            }
+        }
+
+        function showReadingNotification(isTest) {
+            var key = getNotificationKeyForDate(new Date());
+            if (!isTest && appData.notificationLastKey === key) return;
+            var message = getNotificationText();
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    new Notification('LuminaRead', { body: message, tag: 'luminaread-reading-reminder', renotify: true });
+                } catch (e) {
+                    showToast(message);
+                }
+            } else {
+                showToast(message);
+            }
+            if (!isTest) {
+                appData.notificationLastKey = key;
+                saveData();
+            }
+        }
+
+        var ONBOARDING_STEPS = [
+            { emoji: '🌟', title: 'Читай и расти свою Звезду', text: 'Твоя звезда будет эволюционировать от Искры до Сверхновой!' },
+            { emoji: '✨', title: 'Выполняй задания', text: 'Ставь цели, выполняй их и получай за это Искры.' },
+            { emoji: '📚', title: 'Читай книги из подборки и загружай свои', text: 'Открывай подборку интересных книг и загружай свои в удобных форматах: TXT, FB2, EPUB или PDF.' },
+            { emoji: '⏱️', title: 'Ставь цели по чтению', text: 'Укажи время, которое хочешь читать, а потом засекай время или добавляй минуты вручную.' },
+            { emoji: '🏆', title: 'Получай награды', text: 'Открывай достижения за чтение, серии, книги и рост твоей Звезды!' },
+            { emoji: '📊', title: 'Следи за прогрессом', text: 'Изучай свою книжную статистику за неделю и месяц.' }
+        ];
+        var onboardingIndex = 0;
+
+        function renderOnboarding() {
+            var step = ONBOARDING_STEPS[onboardingIndex];
+            document.getElementById('onboardingStep').textContent = (onboardingIndex + 1) + ' / ' + ONBOARDING_STEPS.length;
+            document.getElementById('onboardingEmoji').textContent = step.emoji;
+            document.getElementById('onboardingTitle').textContent = step.title;
+            document.getElementById('onboardingText').textContent = step.text;
+            document.getElementById('onboardingPrevBtn').style.visibility = onboardingIndex === 0 ? 'hidden' : 'visible';
+            document.getElementById('onboardingNextBtn').textContent = onboardingIndex === ONBOARDING_STEPS.length - 1 ? 'Начать' : 'Дальше';
+            var dots = '';
+            for (var i = 0; i < ONBOARDING_STEPS.length; i++) {
+                dots += '<span class="onboarding-dot ' + (i === onboardingIndex ? 'active' : '') + '"></span>';
+            }
+            document.getElementById('onboardingDots').innerHTML = dots;
+        }
+
+        function openOnboarding(force) {
+            onboardingIndex = 0;
+            renderOnboarding();
+            document.getElementById('onboardingOverlay').classList.add('active');
+            if (force) showToast('Онбординг открыт заново');
+        }
+
+        function closeOnboarding(markSeen) {
+            document.getElementById('onboardingOverlay').classList.remove('active');
+            if (markSeen) {
+                appData.onboardingSeen = true;
+                saveData();
+            }
+        }
+
+        function nextOnboarding() {
+            if (onboardingIndex >= ONBOARDING_STEPS.length - 1) {
+                closeOnboarding(true);
+                return;
+            }
+            onboardingIndex++;
+            renderOnboarding();
+        }
+
+        function prevOnboarding() {
+            if (onboardingIndex <= 0) return;
+            onboardingIndex--;
+            renderOnboarding();
+        }
+
+        // ===== TOAST =====
+        function showToast(message, isAchievement) {
+            var toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (isAchievement ? ' achievement' : '');
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ===== INIT =====
+        function init() {
+            appData = loadData();
+            applyTheme();
+            checkDayReset();
+
+            // Nav tabs
+            var navTabs = document.querySelectorAll('.nav-tab');
+            for (var i = 0; i < navTabs.length; i++) {
+                navTabs[i].addEventListener('click', function() {
+                    var page = this.getAttribute('data-page');
+                    for (var t = 0; t < navTabs.length; t++) {
+                        navTabs[t].classList.remove('active');
+                    }
+                    this.classList.add('active');
+                    var pages = document.querySelectorAll('.page');
+                    for (var p = 0; p < pages.length; p++) {
+                        pages[p].classList.remove('active');
+                    }
+                    document.getElementById('page-' + page).classList.add('active');
+                    
+
+                });
+            }
+
+            // Timer
+            document.getElementById('timerBtn').addEventListener('click', toggleTimer);
+            document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+            // Quick add
+            var quickBtns = document.querySelectorAll('.quick-btn');
+            for (var j = 0; j < quickBtns.length; j++) {
+                quickBtns[j].addEventListener('click', function() {
+                    var min = parseInt(this.getAttribute('data-min'), 10);
+                    quickAdd(min);
+                });
+            }
+
+            // Custom add
+            document.getElementById('customAddBtn').addEventListener('click', addCustomMinutes);
+            document.getElementById('customMinutes').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addCustomMinutes();
+            });
+
+            // Goal modal
+            document.getElementById('goalEditBtn').addEventListener('click', openGoalModal);
+            document.getElementById('goalSaveBtn').addEventListener('click', closeGoalModal);
+            document.getElementById('goalCustomBtn').addEventListener('click', setCustomGoal);
+            document.getElementById('goalCustomInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') setCustomGoal();
+            });
+            document.getElementById('goalModal').addEventListener('click', function(e) {
+                if (e.target === this) closeGoalModal();
+            });
+
+            var goalOptions = document.querySelectorAll('.goal-option');
+            for (var k = 0; k < goalOptions.length; k++) {
+                goalOptions[k].addEventListener('click', function() {
+                    selectGoalOption(this);
+                });
+            }
+
+            // File upload
+            document.getElementById('uploadBtn').addEventListener('click', function() {
+                document.getElementById('fileInput').click();
+            });
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+
+            // Reader
+            document.getElementById('readerBackBtn').addEventListener('click', closeReader);
+            document.getElementById('readerNextBtn').addEventListener('click', readerNextPage);
+            document.getElementById('readerPrevBtn').addEventListener('click', readerPrevPage);
+            document.getElementById('fontDecBtn').addEventListener('click', function() { changeFontSize(-1); });
+            document.getElementById('fontIncBtn').addEventListener('click', function() { changeFontSize(1); });
+            document.getElementById('readerEncodingSelect').addEventListener('change', changeReaderEncoding);
+            document.querySelectorAll('.chart-tab').forEach(function(tab) { tab.addEventListener('click', function() { document.querySelectorAll('.chart-tab').forEach(function(t) { t.classList.remove('active'); }); tab.classList.add('active'); document.getElementById('weeklyChart').style.display = tab.dataset.chart === 'week' ? 'flex' : 'none'; document.getElementById('monthlyChart').style.display = tab.dataset.chart === 'month' ? 'flex' : 'none'; }); });
+            document.getElementById('onboardingReplayBtn').addEventListener('click', function() { openOnboarding(true); });
+            document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+            document.getElementById('onboardingSkipBtn').addEventListener('click', function() { closeOnboarding(true); });
+            document.getElementById('onboardingNextBtn').addEventListener('click', nextOnboarding);
+            document.getElementById('onboardingPrevBtn').addEventListener('click', prevOnboarding);
+            document.getElementById('petTasks').addEventListener('click', function(e) {
+                var card = e.target.closest('.task-card');
+                if (!card || !card.classList.contains('ready')) return;
+                claimTaskReward(card.getAttribute('data-task-id'), card.querySelector('.task-reward') || card);
+            });
+            document.getElementById('notificationTimeInput').addEventListener('change', saveNotificationTime);
+            document.getElementById('notificationEnableBtn').addEventListener('click', enableReadingNotifications);
+            document.getElementById('notificationDisableBtn').addEventListener('click', disableReadingNotifications);
+            document.getElementById('notificationTestBtn').addEventListener('click', function() {
+                if (!('Notification' in window)) {
+                    showToast('Браузер не поддерживает уведомления');
+                    return;
+                }
+                if (Notification.permission === 'granted') {
+                    showReadingNotification(true);
+                } else {
+                    enableReadingNotifications();
+                }
+            });
+
+            // Keyboard for reader
+            document.addEventListener('keydown', function(e) {
+                if (!document.getElementById('readerOverlay').classList.contains('active')) return;
+                if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); readerNextPage(); }
+                else if (e.key === 'ArrowLeft') { e.preventDefault(); readerPrevPage(); }
+                else if (e.key === 'Escape') { closeReader(); }
+            });
+
+            updateUI();
+            checkAchievements();
+            scheduleReadingNotification();
+            if (!appData.onboardingSeen) openOnboarding(false);
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
+
