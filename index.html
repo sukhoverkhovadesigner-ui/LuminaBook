@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LuminaRead — Читай со звездой</title>
+    <title>LuminaBook — Читай со звездой</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -1414,7 +1414,7 @@
         <div class="header">
             <div class="logo">
                 <div class="logo-icon">✨</div>
-                <div class="logo-text">LuminaRead</div>
+                <div class="logo-text">LuminaBook</div>
             </div>
             <div style="display:flex; gap:8px; align-items:center;"><div class="streak-badge">🔥 <span id="streakDisplay">0</span> дн.</div><div class="streak-badge">✨ <span id="coinDisplay">0</span></div></div>
         </div>
@@ -1654,7 +1654,7 @@
                 <button class="onboarding-skip" id="onboardingSkipBtn">Пропустить</button>
             </div>
             <div class="onboarding-emoji" id="onboardingEmoji">🐣</div>
-            <div class="onboarding-title" id="onboardingTitle">LuminaRead — Читай со звездой</div>
+            <div class="onboarding-title" id="onboardingTitle">LuminaBook — Читай со звездой</div>
             <div class="onboarding-text" id="onboardingText">Читай, собирай Искры и раскрывай свое созвездие.</div>
             <div class="onboarding-dots" id="onboardingDots"></div>
             <div class="onboarding-actions">
@@ -1669,7 +1669,7 @@
 
     <script>
         // ===== CONSTANTS =====
-        var STORAGE_KEY = 'luminaread_data_final';
+        var STORAGE_KEY = 'luminabook_data_final';
 
         var DINO_STAGES = [
             { name: 'Искра', days: 0, duration: 2, emoji: '✨' },
@@ -3001,7 +3001,7 @@
             var message = getNotificationText();
             if ('Notification' in window && Notification.permission === 'granted') {
                 try {
-                    new Notification('LuminaRead', { body: message, tag: 'luminaread-reading-reminder', renotify: true });
+                    new Notification('LuminaBook', { body: message, tag: 'luminabook-reading-reminder', renotify: true });
                 } catch (e) {
                     showToast(message);
                 }
